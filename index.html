@@ -83,7 +83,7 @@
     <div id="root">
       <main class="radio-app">
         <div class="yt-host" aria-hidden="true"><div id="yt-player"></div></div>
-        <div class="scene scene--rain" aria-hidden="true"><div class="scene__photo scene__photo--night"></div><div class="scene__photo scene__photo--day"></div><canvas class="rain-canvas" id="rain-canvas"></canvas></div>
+        <div class="scene scene--rain" aria-hidden="true"><div class="scene__photo scene__photo--night"></div><div class="scene__photo scene__photo--day"></div><div class="lightning-flash" id="lightning-flash"></div><canvas class="rain-canvas" id="rain-canvas"></canvas></div>
         <canvas class="fg-rain-canvas" id="fg-rain-canvas" aria-hidden="true"></canvas>
         <div class="radio-content">
           <h1 class="sr-only">बरसात — Monsoon Radio</h1>
@@ -135,24 +135,23 @@
           <aside class="rain-mixer" id="rain-mixer">
             <button class="rain-mixer__trigger" id="rain-mixer-trigger" type="button" aria-label="Open rain ambience mixer" aria-expanded="false" aria-controls="rain-mixer-panel" aria-keyshortcuts="R">
               <span class="rain-mixer__icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M7.2 18.2 6 21m6-2.8L10.8 21m6-2.8L15.8 21M6.5 16a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 17.5 8a4 4 0 0 1-.5 8H6.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-              <span><small>RAIN</small><strong id="rain-mixer-summary">Rain · 30%</strong></span>
+              <span><small>RAIN</small><strong id="rain-mixer-summary">Rain · 20%</strong></span>
               <svg class="rain-mixer__chevron" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div class="rain-mixer__panel" id="rain-mixer-panel" role="dialog" aria-label="Rain ambience mixer" hidden>
-              <header><div><small>AMBIENCE MIXER</small><strong>Rain beside the music</strong></div><button class="rain-mixer__power" id="rain-ambience-toggle" type="button" aria-label="Toggle rain ambience" aria-pressed="false"><span></span><b>OFF</b></button></header>
-              <div class="rain-mixer__presets" aria-label="Atmosphere presets">
-                <small>ATMOSPHERE PRESETS</small>
-                <div>
-                  <button type="button" data-atmosphere-preset="window-seat" aria-pressed="false"><strong>WINDOW SEAT</strong><span>light rain · music 70%</span></button>
-                  <button type="button" data-atmosphere-preset="midnight" aria-pressed="false"><strong>MIDNIGHT</strong><span>heavy rain · music 55%</span></button>
-                  <button type="button" data-atmosphere-preset="chai-rain" aria-pressed="false"><strong>CHAI &amp; RAIN</strong><span>drizzle · music 75%</span></button>
-                  <button type="button" data-atmosphere-preset="cloud-burst" aria-pressed="false"><strong>CLOUD BURST</strong><span>storm · music 60%</span></button>
-                </div>
+              <header><div><small>AMBIENCE MIXER</small><strong>Rain beside the music</strong></div></header>
+              <div class="rain-mixer__toggles">
+                <button class="toggle-pill" id="rain-ambience-toggle" type="button" aria-label="Toggle rain ambience" aria-pressed="true">
+                  <span class="toggle-pill__info">
+                    <span class="toggle-pill__title">Rain Ambience</span>
+                    <b class="toggle-pill__status">ON</b>
+                  </span>
+                  <span class="toggle-pill__switch"><span class="toggle-pill__thumb"></span></span>
+                </button>
               </div>
-              <button class="rain-mixer__thunder" id="thunder-toggle" type="button" aria-pressed="false"><span class="rain-mixer__status-dot"></span><span>Distant thunder</span><b>OFF</b></button>
               <label class="rain-mixer__volume"><span>Music <output id="music-volume-output">65%</output></span><input id="music-volume" type="range" min="0" max="100" value="65" aria-label="Music volume" /></label>
-              <label class="rain-mixer__volume"><span>Rain <output id="rain-volume-output">30%</output></span><input id="rain-volume" type="range" min="0" max="100" value="30" aria-label="Rain ambience volume" /></label>
-              <p class="rain-mixer__note" id="rain-mixer-note" aria-live="polite">Turn ambience on or raise the Rain volume to begin.</p>
+              <label class="rain-mixer__volume"><span>Rain <output id="rain-volume-output">20%</output></span><input id="rain-volume" type="range" min="0" max="100" value="20" aria-label="Rain ambience volume" /></label>
+              <p class="rain-mixer__note" id="rain-mixer-note" aria-live="polite">Turn ambience on or adjust Rain volume to set intensity.</p>
             </div>
           </aside>
           <aside class="site-context" aria-label="About and privacy"><p>Rain-soaked songs for quiet nights.</p><nav><a href="/about.html">About</a><a href="/privacy.html">Privacy</a></nav></aside>

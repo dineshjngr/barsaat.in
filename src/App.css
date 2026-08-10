@@ -58,7 +58,44 @@
   z-index: 10;
 }
 
-.scene--lightning { animation: lightning .36s ease-out; }
+.lightning-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: radial-gradient(circle at 65% 25%, rgba(220, 238, 255, 0.35) 0%, rgba(170, 210, 245, 0.15) 50%, transparent 80%);
+  opacity: 0;
+}
+
+body.is-lightning,
+.scene--lightning {
+  animation: lightning-brightness 650ms cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+body.is-lightning .lightning-flash,
+.scene--lightning .lightning-flash {
+  animation: lightning-strobe 650ms cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+@keyframes lightning-strobe {
+  0% { opacity: 0; }
+  8% { opacity: 0.45; }
+  14% { opacity: 0.1; }
+  22% { opacity: 0.35; }
+  35% { opacity: 0.05; }
+  45% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes lightning-brightness {
+  0% { filter: brightness(1); }
+  8% { filter: brightness(1.6) contrast(1.15); }
+  14% { filter: brightness(1.15); }
+  22% { filter: brightness(1.7) contrast(1.2); }
+  35% { filter: brightness(1.1); }
+  45% { filter: brightness(1.3); }
+  100% { filter: brightness(1); }
+}
 
 .radio-content {
   position: relative;
@@ -675,111 +712,87 @@
 .rain-mixer__panel header > div { display: flex; flex-direction: column; gap: 2px; }
 .rain-mixer__panel header strong { font-size: 12px; font-weight: 500; }
 
-.rain-mixer__power {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border: 1px solid rgba(255, 255, 255, .14);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .06);
-  color: rgba(255, 255, 255, .58);
-  cursor: pointer;
-}
-
-.rain-mixer__power span,
-.rain-mixer__status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .34);
-}
-
-.rain-mixer__power b,
-.rain-mixer__thunder b { font-size: 8px; font-weight: 600; letter-spacing: .08em; }
-.rain-mixer__power[aria-pressed='true'] { color: #a7e3d5; }
-.rain-mixer__power[aria-pressed='true'] span { background: #5ed0ac; box-shadow: 0 0 8px rgba(94, 208, 172, .65); }
-
-.rain-mixer__presets { margin-top: 14px; }
-.rain-mixer__presets > small {
-  display: block;
-  margin-bottom: 6px;
-  color: rgba(255, 255, 255, .42);
-  font-size: 8px;
-  letter-spacing: .14em;
-}
-.rain-mixer__presets > div {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-}
-.rain-mixer__presets button {
+.rain-mixer__toggles {
   display: flex;
-  min-width: 0;
   flex-direction: column;
-  gap: 2px;
-  padding: 9px;
-  border: 1px solid rgba(255, 255, 255, .07);
-  border-radius: 11px;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.toggle-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 14px;
   background: rgba(255, 255, 255, .04);
-  color: rgba(255, 255, 255, .74);
+  color: rgba(255, 255, 255, .85);
   cursor: pointer;
-  text-align: left;
-  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
-}
-.rain-mixer__presets button:hover { color: #fff; background: rgba(255, 255, 255, .08); }
-.rain-mixer__presets button.is-selected {
-  border-color: rgba(130, 208, 191, .28);
-  background: rgba(130, 208, 191, .12);
-  color: #e3f4f0;
-}
-.rain-mixer__presets strong { font-size: 8px; font-weight: 650; letter-spacing: .09em; }
-.rain-mixer__presets span { overflow: hidden; color: currentColor; font-size: 8px; opacity: .58; text-overflow: ellipsis; white-space: nowrap; }
-
-.rain-mixer__levels {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  margin: 14px 0 10px;
+  transition: all 200ms ease;
 }
 
-.rain-mixer__levels button {
-  padding: 8px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, .045);
-  color: rgba(255, 255, 255, .58);
-  cursor: pointer;
-  font-size: 10px;
-  text-align: left;
+.toggle-pill:hover {
+  border-color: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .08);
 }
 
-.rain-mixer__levels button:hover { color: #fff; background: rgba(255, 255, 255, .09); }
-.rain-mixer__levels button.is-selected {
-  border-color: rgba(130, 208, 191, .22);
-  background: rgba(130, 208, 191, .13);
-  color: #d8f1eb;
-}
-
-.rain-mixer__thunder {
-  display: grid;
-  grid-template-columns: 7px 1fr auto;
+.toggle-pill__info {
+  display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
-  padding: 9px 4px;
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, .1);
-  border-bottom: 1px solid rgba(255, 255, 255, .1);
-  background: transparent;
-  color: rgba(255, 255, 255, .58);
-  cursor: pointer;
-  font-size: 10px;
-  text-align: left;
 }
 
-.rain-mixer__thunder[aria-pressed='true'] { color: rgba(255, 255, 255, .86); }
-.rain-mixer__thunder[aria-pressed='true'] .rain-mixer__status-dot { background: #82d0bf; box-shadow: 0 0 7px rgba(130, 208, 191, .55); }
+.toggle-pill__title {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.toggle-pill__status {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+  color: rgba(255, 255, 255, .45);
+}
+
+.toggle-pill[aria-pressed='true'] .toggle-pill__status {
+  background: rgba(74, 222, 128, .2);
+  color: #4ade80;
+}
+
+.toggle-pill__switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .15);
+  transition: background-color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-pill__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .4);
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-pill[aria-pressed='true'] .toggle-pill__switch {
+  background: #4ade80;
+  box-shadow: 0 0 10px rgba(74, 222, 128, .5);
+}
+
+.toggle-pill[aria-pressed='true'] .toggle-pill__thumb {
+  transform: translateX(16px);
+}
 
 .rain-mixer__volume { display: block; margin-top: 11px; }
 .rain-mixer__volume > span {

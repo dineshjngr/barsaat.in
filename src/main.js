@@ -17,8 +17,8 @@ const sharedMoment = sharedListeningState()
 
 const FALLBACK_ART = '/covers/monsoon-fallback.svg'
 const RAIN_AUDIO = '/audio/liecio-light-rain-109591.mp3'
-const THUNDER_AUDIO = '/audio/distant-thunder.wav'
-const rainVisual = { count: 105, speed: .9, length: .9 }
+const THUNDER_AUDIO = '/audio/thunder-sound.mp3'
+const THUNDER_FALLBACK = '/audio/distant-thunder.wav'
 const atmospherePresets = {
   'window-seat': { musicVolume: 70, rainVolume: 30 },
   midnight: { musicVolume: 55, rainVolume: 42 },
@@ -65,10 +65,10 @@ const state = {
   shuffle: storage.get('monsoon-shuffle') !== 'false',
   playlistIndex: Math.floor(Math.random() * PLAYLIST_IDS.length),
   playlistPrepared: false,
-  rainEnabled: storage.get('monsoon-rain-enabled') === 'true',
-  thunderEnabled: storage.get('monsoon-thunder-enabled') === 'true',
+  rainEnabled: storage.get('monsoon-rain-enabled') !== 'false',
+  thunderEnabled: true,
   musicVolume: storedVolume('monsoon-music-volume', 65),
-  rainVolume: storedVolume('monsoon-rain-volume', 30),
+  rainVolume: storedVolume('monsoon-rain-volume', 20),
   atmospherePreset: storage.get('monsoon-atmosphere-preset'),
   musicMuted: false,
   todaySessionActive: false,
@@ -573,20 +573,19 @@ let thunderTimer = 0
 let shareCopyResetTimer = 0
 
 function updateMixer() {
-  $('#rain-mixer-summary').textContent = `Rain · ${state.rainVolume}%`
-  rainAmbienceToggle.setAttribute('aria-pressed', String(state.rainEnabled))
-  rainAmbienceToggle.querySelector('b').textContent = state.rainEnabled ? 'ON' : 'OFF'
-  thunderToggle.setAttribute('aria-pressed', String(state.thunderEnabled))
-  thunderToggle.querySelector('b').textContent = state.thunderEnabled ? 'ON' : 'OFF'
-  document.querySelectorAll('[data-atmosphere-preset]').forEach((button) => {
-    const selected = button.dataset.atmospherePreset === state.atmospherePreset
-    button.classList.toggle('is-selected', selected)
-    button.setAttribute('aria-pressed', String(selected))
-  })
-  musicVolume.value = String(state.musicVolume)
-  rainVolume.value = String(state.rainVolume)
-  $('#music-volume-output').textContent = `${state.musicVolume}%`
-  $('#rain-volume-output').textContent = `${state.rainVolume}%`
+  const summaryEl = $('#rain-mixer-summary')
+  if (summaryEl) summaryEl.textContent = `Rain · ${state.rainVolume}%`
+  if (rainAmbienceToggle) {
+    rainAmbienceToggle.setAttribute('aria-pressed', String(state.rainEnabled))
+    const statusB = rainAmbienceToggle.querySelector('b')
+    if (statusB) statusB.textContent = state.rainEnabled ? 'ON' : 'OFF'
+  }
+  if (musicVolume) musicVolume.value = String(state.musicVolume)
+  if (rainVolume) rainVolume.value = String(state.rainVolume)
+  const musicOut = $('#music-volume-output')
+  if (musicOut) musicOut.textContent = `${state.musicVolume}%`
+  const rainOut = $('#rain-volume-output')
+  if (rainOut) rainOut.textContent = `${state.rainVolume}%`
 }
 
 function clearAtmospherePreset() {
@@ -636,23 +635,59 @@ function stopRainAmbience() {
   setMixerNote('Rain ambience is off.')
 }
 
-function scheduleThunder(shortDelay = false) {
+function triggerThunderFlash() {
+  const sceneEl = $('.scene')
+  document.body.classList.remove('is-lightning')
+  if (sceneEl) sceneEl.classList.remove('scene--lightning')
+
+  void document.body.offsetWidth
+
+  document.body.classList.add('is-lightning')
+  if (sceneEl) sceneEl.classList.add('scene--lightning')
+
+  setTimeout(() => {
+    document.body.classList.remove('is-lightning')
+    if (sceneEl) sceneEl.classList.remove('scene--lightning')
+  }, 680)
+}
+
+function playThunderBurst() {
+  if (!state.thunderEnabled) return
+  triggerThunderFlash()
+
+  if (!thunderAudio.src || !thunderAudio.src.includes('thunder')) {
+    thunderAudio.src = THUNDER_AUDIO
+  }
+  thunderAudio.volume = 0.85
+  thunderAudio.currentTime = 0
+
+  const playPromise = thunderAudio.play()
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      if (thunderAudio.src !== location.origin + THUNDER_FALLBACK) {
+        thunderAudio.src = THUNDER_FALLBACK
+        thunderAudio.play().catch(() => {})
+      }
+    })
+  }
+}
+
+function scheduleThunder(immediate = false) {
   clearTimeout(thunderTimer)
   if (!state.thunderEnabled) return
-  const delay = shortDelay ? 7000 + Math.random() * 9000 : 30000 + Math.random() * 45000
-  thunderTimer = setTimeout(async () => {
+
+  if (immediate) {
+    playThunderBurst()
+  }
+
+  const nextDelay = 16000 + Math.random() * 20000
+  thunderTimer = setTimeout(() => {
     thunderTimer = 0
-    if (!state.thunderEnabled) return
-    if (!thunderAudio.src) thunderAudio.src = THUNDER_AUDIO
-    thunderAudio.volume = Math.min(.45, (state.rainVolume / 100) * .55)
-    thunderAudio.currentTime = 0
-    try {
-      await thunderAudio.play()
-    } catch {
-      setMixerNote(`Add ${THUNDER_AUDIO} to enable distant thunder.`)
-      clearTimeout(thunderTimer)
+    if (state.thunderEnabled) {
+      playThunderBurst()
+      scheduleThunder()
     }
-  }, delay)
+  }, nextDelay)
 }
 
 thunderAudio.addEventListener('ended', () => scheduleThunder())
@@ -818,13 +853,15 @@ document.addEventListener('keydown', (event) => {
   if (shortcut === '?') setKeyboardHelp(keyboardHelpPanel.hidden)
 })
 
-rainAmbienceToggle.addEventListener('click', () => {
-  state.rainEnabled = !state.rainEnabled
-  storage.set('monsoon-rain-enabled', String(state.rainEnabled))
-  if (state.rainEnabled) playRainAmbience()
-  else stopRainAmbience()
-  updateMixer()
-})
+if (rainAmbienceToggle) {
+  rainAmbienceToggle.addEventListener('click', () => {
+    state.rainEnabled = !state.rainEnabled
+    storage.set('monsoon-rain-enabled', String(state.rainEnabled))
+    if (state.rainEnabled) playRainAmbience()
+    else stopRainAmbience()
+    updateMixer()
+  })
+}
 
 document.querySelectorAll('[data-atmosphere-preset]').forEach((button) => {
   button.addEventListener('click', () => applyAtmospherePreset(button.dataset.atmospherePreset))
@@ -832,23 +869,24 @@ document.querySelectorAll('[data-atmosphere-preset]').forEach((button) => {
 
 todaysRainTrigger.addEventListener('click', () => {
   closeSharePopover()
-  const presetKeys = Object.keys(atmospherePresets)
-  const choices = presetKeys.filter((key) => key !== state.atmospherePreset)
-  const presetKey = choices[Math.floor(Math.random() * choices.length)] || presetKeys[0]
-  applyAtmospherePreset(presetKey)
 
   state.todaySessionActive = true
   $('#todays-rain-time').textContent = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date())
-  $('#todays-rain-weather').textContent = 'Light rain'
+  $('#todays-rain-weather').textContent = 'Heavy rain'
   $('#todays-rain-title').textContent = 'Finding a song…'
   $('#todays-rain-artist').textContent = 'Monsoon Radio'
   $('#todays-rain-line').textContent = todaysRainLines[Math.floor(Math.random() * todaysRainLines.length)]
   todaysRainCard.hidden = false
   todaysRainTrigger.setAttribute('aria-expanded', 'true')
 
+  if (state.rainEnabled && rainAudio.paused) playRainAmbience()
+  if (state.thunderEnabled && !thunderTimer) scheduleThunder(true)
+
   const previousPlaylist = state.playlistIndex
   state.playlistIndex = Math.floor(Math.random() * PLAYLIST_IDS.length)
-  if (PLAYLIST_IDS.length > 1 && state.playlistIndex === previousPlaylist) state.playlistIndex = (previousPlaylist + 1) % PLAYLIST_IDS.length
+  if (PLAYLIST_IDS.length > 1 && state.playlistIndex === previousPlaylist) {
+    state.playlistIndex = (previousPlaylist + 1) % PLAYLIST_IDS.length
+  }
   state.playlistPrepared = false
   state.playlistFailures = 0
   state.pendingPlay = true
@@ -857,8 +895,16 @@ todaysRainTrigger.addEventListener('click', () => {
   state.sharedSeekApplied = true
   setPlayerStatus('Choosing today’s rain song…', true)
 
-  if (!state.apiRequested) loadYouTubeApi()
-  else if (state.ready) state.player.cuePlaylist({ listType: 'playlist', list: activePlaylist(), index: 0 })
+  if (!state.apiRequested) {
+    loadYouTubeApi()
+  } else if (state.ready && state.player) {
+    const listLen = state.player.getPlaylist?.()?.length || 10
+    const randomIndex = Math.floor(Math.random() * listLen)
+    state.player.loadPlaylist({ listType: 'playlist', list: activePlaylist(), index: randomIndex })
+    setTimeout(() => {
+      try { state.player.playVideo() } catch (_) {}
+    }, 150)
+  }
 })
 
 $('#todays-rain-close').addEventListener('click', () => {
@@ -867,19 +913,21 @@ $('#todays-rain-close').addEventListener('click', () => {
   todaysRainTrigger.focus()
 })
 
-thunderToggle.addEventListener('click', () => {
-  state.thunderEnabled = !state.thunderEnabled
-  storage.set('monsoon-thunder-enabled', String(state.thunderEnabled))
-  if (state.thunderEnabled) {
-    setMixerNote('Distant thunder will arrive occasionally.')
-    scheduleThunder(true)
-  } else {
-    clearTimeout(thunderTimer)
-    thunderAudio.pause()
-    setMixerNote('Distant thunder is off.')
-  }
-  updateMixer()
-})
+if (thunderToggle) {
+  thunderToggle.addEventListener('click', () => {
+    state.thunderEnabled = !state.thunderEnabled
+    storage.set('monsoon-thunder-enabled', String(state.thunderEnabled))
+    if (state.thunderEnabled) {
+      setMixerNote('Distant thunder will arrive occasionally.')
+      scheduleThunder(true)
+    } else {
+      clearTimeout(thunderTimer)
+      thunderAudio.pause()
+      setMixerNote('Distant thunder is off.')
+    }
+    updateMixer()
+  })
+}
 
 musicVolume.addEventListener('input', () => {
   clearAtmospherePreset()
@@ -895,7 +943,7 @@ rainVolume.addEventListener('input', () => {
   state.rainVolume = Number(rainVolume.value)
   storage.set('monsoon-rain-volume', String(state.rainVolume))
   rainAudio.volume = state.rainVolume / 100
-  thunderAudio.volume = Math.min(.45, (state.rainVolume / 100) * .55)
+  thunderAudio.volume = 0.85
   if (state.rainVolume > 0 && !state.rainEnabled) {
     state.rainEnabled = true
     storage.set('monsoon-rain-enabled', 'true')
@@ -910,6 +958,10 @@ updateMixer()
 if (state.rainEnabled) setMixerNote('Rain is ready and will begin after your next interaction.')
 if (state.thunderEnabled) setMixerNote('Rain and distant thunder are ready for your next interaction.')
 
+window.addEventListener('click', () => {
+  if (state.thunderEnabled && !thunderTimer) scheduleThunder(true)
+}, { once: true })
+
 const bgCanvas = $('#rain-canvas')
 const bgContext = bgCanvas ? bgCanvas.getContext('2d') : null
 const fgCanvas = $('#fg-rain-canvas')
@@ -919,13 +971,12 @@ let bgDrops = []
 let staticDroplets = []
 let slidingDroplets = []
 let rainFrame = 0
-let lightningTimer = 0
 let width = 0
 let height = 0
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function getRainParams() {
-  const vol = state.rainEnabled ? (state.rainVolume || 30) : 0
+  const vol = state.rainVolume || 20
   if (vol <= 0) return { bgCount: 0, bgSpeed: 0, bgLen: 0, staticCount: 0, slidingCount: 0, slidingSpeed: 0 }
   if (vol <= 25) {
     return { bgCount: 50, bgSpeed: 0.7, bgLen: 0.65, staticCount: 40, slidingCount: 1, slidingSpeed: 0.5 }
@@ -1173,34 +1224,21 @@ function renderRainSystem() {
   rainFrame = requestAnimationFrame(renderRainSystem)
 }
 
-function scheduleLightning() {
-  clearTimeout(lightningTimer)
-  lightningTimer = setTimeout(() => {
-    $('.scene').classList.add('scene--lightning')
-    setTimeout(() => $('.scene').classList.remove('scene--lightning'), 360)
-    scheduleLightning()
-  }, 20000 + Math.random() * 40000)
-}
-
 resizeRain()
 addEventListener('resize', resizeRain)
 if (!reducedMotion) {
   rainFrame = requestAnimationFrame(renderRainSystem)
-  scheduleLightning()
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       cancelAnimationFrame(rainFrame)
-      clearTimeout(lightningTimer)
     } else {
       rainFrame = requestAnimationFrame(renderRainSystem)
-      scheduleLightning()
     }
   })
 }
 
 addEventListener('beforeunload', () => {
   cancelAnimationFrame(rainFrame)
-  clearTimeout(lightningTimer)
   clearTimeout(thunderTimer)
   rainAudio.pause()
   thunderAudio.pause()
