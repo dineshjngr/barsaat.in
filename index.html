@@ -84,6 +84,7 @@
       <main class="radio-app">
         <div class="yt-host" aria-hidden="true"><div id="yt-player"></div></div>
         <div class="scene scene--rain" aria-hidden="true"><div class="scene__photo scene__photo--night"></div><div class="scene__photo scene__photo--day"></div><canvas class="rain-canvas" id="rain-canvas"></canvas></div>
+        <canvas class="fg-rain-canvas" id="fg-rain-canvas" aria-hidden="true"></canvas>
         <div class="radio-content">
           <h1 class="sr-only">बरसात — Monsoon Radio</h1>
           <header class="topbar">
@@ -148,16 +149,10 @@
                   <button type="button" data-atmosphere-preset="cloud-burst" aria-pressed="false"><strong>CLOUD BURST</strong><span>storm · music 60%</span></button>
                 </div>
               </div>
-              <div class="rain-mixer__levels" aria-label="Rain intensity">
-                <button type="button" data-rain-level="Drizzle" aria-pressed="false">Drizzle</button>
-                <button type="button" data-rain-level="Rain" aria-pressed="true">Rain</button>
-                <button type="button" data-rain-level="Heavy" aria-pressed="false">Heavy rain</button>
-                <button type="button" data-rain-level="Cloudburst" aria-pressed="false">Cloudburst</button>
-              </div>
               <button class="rain-mixer__thunder" id="thunder-toggle" type="button" aria-pressed="false"><span class="rain-mixer__status-dot"></span><span>Distant thunder</span><b>OFF</b></button>
               <label class="rain-mixer__volume"><span>Music <output id="music-volume-output">65%</output></span><input id="music-volume" type="range" min="0" max="100" value="65" aria-label="Music volume" /></label>
               <label class="rain-mixer__volume"><span>Rain <output id="rain-volume-output">30%</output></span><input id="rain-volume" type="range" min="0" max="100" value="30" aria-label="Rain ambience volume" /></label>
-              <p class="rain-mixer__note" id="rain-mixer-note" aria-live="polite">Rain begins after you turn ambience on.</p>
+              <p class="rain-mixer__note" id="rain-mixer-note" aria-live="polite">Turn ambience on or raise the Rain volume to begin.</p>
             </div>
           </aside>
           <aside class="site-context" aria-label="About and privacy"><p>Rain-soaked songs for quiet nights.</p><nav><a href="/about.html">About</a><a href="/privacy.html">Privacy</a></nav></aside>

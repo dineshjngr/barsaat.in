@@ -9,32 +9,21 @@ function sharedListeningState() {
   const match = location.pathname.match(/^\/listen\/([A-Za-z0-9_-]{11})\/?$/)
   if (!match) return null
   const params = new URLSearchParams(location.search)
-  const rainMap = { drizzle: 'Drizzle', rain: 'Rain', heavy: 'Heavy', cloudburst: 'Cloudburst' }
   const seconds = Math.max(0, Math.min(86400, Number.parseInt(params.get('t') || '0', 10) || 0))
-  return { videoId: match[1], seconds, rain: rainMap[params.get('rain')] || 'Rain' }
+  return { videoId: match[1], seconds }
 }
 
 const sharedMoment = sharedListeningState()
 
 const FALLBACK_ART = '/covers/monsoon-fallback.svg'
-const RAIN_AUDIO = {
-  Drizzle: '/audio/rain-drizzle.mp3',
-  Rain: '/audio/rain.mp3',
-  Heavy: '/audio/rain-heavy.mp3',
-  Cloudburst: '/audio/rain-cloudburst.mp3',
-}
-const THUNDER_AUDIO = '/audio/distant-thunder.mp3'
-const rainLevels = {
-  Drizzle: { count: 55, speed: .5, length: .65 },
-  Rain: { count: 105, speed: .9, length: .9 },
-  Heavy: { count: 175, speed: 1.35, length: 1.1 },
-  Cloudburst: { count: 255, speed: 1.9, length: 1.35 },
-}
+const RAIN_AUDIO = '/audio/liecio-light-rain-109591.mp3'
+const THUNDER_AUDIO = '/audio/distant-thunder.wav'
+const rainVisual = { count: 105, speed: .9, length: .9 }
 const atmospherePresets = {
-  'window-seat': { rain: 'Rain', musicVolume: 70, rainVolume: 30 },
-  midnight: { rain: 'Heavy', musicVolume: 55, rainVolume: 42 },
-  'chai-rain': { rain: 'Drizzle', musicVolume: 75, rainVolume: 24 },
-  'cloud-burst': { rain: 'Cloudburst', musicVolume: 60, rainVolume: 52 },
+  'window-seat': { musicVolume: 70, rainVolume: 30 },
+  midnight: { musicVolume: 55, rainVolume: 42 },
+  'chai-rain': { musicVolume: 75, rainVolume: 24 },
+  'cloud-burst': { musicVolume: 60, rainVolume: 52 },
 }
 const todaysRainLines = [
   'Some nights sound better in the rain.',
@@ -76,7 +65,6 @@ const state = {
   shuffle: storage.get('monsoon-shuffle') !== 'false',
   playlistIndex: Math.floor(Math.random() * PLAYLIST_IDS.length),
   playlistPrepared: false,
-  rain: sharedMoment?.rain || storage.get('monsoon-rain', 'Rain'),
   rainEnabled: storage.get('monsoon-rain-enabled') === 'true',
   thunderEnabled: storage.get('monsoon-thunder-enabled') === 'true',
   musicVolume: storedVolume('monsoon-music-volume', 65),
@@ -89,7 +77,6 @@ const state = {
   sharedTrackLoaded: false,
   sharedSeekApplied: false,
 }
-if (!RAIN_AUDIO[state.rain]) state.rain = 'Rain'
 if (!atmospherePresets[state.atmospherePreset]) state.atmospherePreset = null
 
 const $ = (selector) => document.querySelector(selector)
@@ -585,21 +572,12 @@ const desktopShortcuts = matchMedia('(min-width: 701px) and (pointer: fine)')
 let thunderTimer = 0
 let shareCopyResetTimer = 0
 
-function rainLabel(level) {
-  return level === 'Heavy' ? 'Heavy rain' : level
-}
-
 function updateMixer() {
-  $('#rain-mixer-summary').textContent = `${rainLabel(state.rain)} · ${state.rainVolume}%`
+  $('#rain-mixer-summary').textContent = `Rain · ${state.rainVolume}%`
   rainAmbienceToggle.setAttribute('aria-pressed', String(state.rainEnabled))
   rainAmbienceToggle.querySelector('b').textContent = state.rainEnabled ? 'ON' : 'OFF'
   thunderToggle.setAttribute('aria-pressed', String(state.thunderEnabled))
   thunderToggle.querySelector('b').textContent = state.thunderEnabled ? 'ON' : 'OFF'
-  document.querySelectorAll('[data-rain-level]').forEach((button) => {
-    const selected = button.dataset.rainLevel === state.rain
-    button.classList.toggle('is-selected', selected)
-    button.setAttribute('aria-pressed', String(selected))
-  })
   document.querySelectorAll('[data-atmosphere-preset]').forEach((button) => {
     const selected = button.dataset.atmospherePreset === state.atmospherePreset
     button.classList.toggle('is-selected', selected)
@@ -621,12 +599,10 @@ function applyAtmospherePreset(presetKey) {
   if (!preset) return false
 
   state.atmospherePreset = presetKey
-  state.rain = preset.rain
   state.musicVolume = preset.musicVolume
   state.rainVolume = preset.rainVolume
   state.rainEnabled = true
   storage.set('monsoon-atmosphere-preset', presetKey)
-  storage.set('monsoon-rain', state.rain)
   storage.set('monsoon-rain-enabled', 'true')
   storage.set('monsoon-music-volume', String(state.musicVolume))
   storage.set('monsoon-rain-volume', String(state.rainVolume))
@@ -642,17 +618,16 @@ function setMixerNote(message) {
 }
 
 async function playRainAmbience() {
-  const source = RAIN_AUDIO[state.rain]
-  if (rainAudio.dataset.source !== source) {
-    rainAudio.src = source
-    rainAudio.dataset.source = source
+  if (rainAudio.dataset.source !== RAIN_AUDIO) {
+    rainAudio.src = RAIN_AUDIO
+    rainAudio.dataset.source = RAIN_AUDIO
   }
   rainAudio.volume = state.rainVolume / 100
   try {
     await rainAudio.play()
-    setMixerNote(`${rainLabel(state.rain)} ambience is playing.`)
+    setMixerNote('Rain ambience is playing.')
   } catch {
-    setMixerNote(`Add ${source} to enable this ambience.`)
+    setMixerNote(`Add ${RAIN_AUDIO} to enable this ambience.`)
   }
 }
 
@@ -864,7 +839,7 @@ todaysRainTrigger.addEventListener('click', () => {
 
   state.todaySessionActive = true
   $('#todays-rain-time').textContent = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date())
-  $('#todays-rain-weather').textContent = rainLabel(state.rain)
+  $('#todays-rain-weather').textContent = 'Light rain'
   $('#todays-rain-title').textContent = 'Finding a song…'
   $('#todays-rain-artist').textContent = 'Monsoon Radio'
   $('#todays-rain-line').textContent = todaysRainLines[Math.floor(Math.random() * todaysRainLines.length)]
@@ -890,17 +865,6 @@ $('#todays-rain-close').addEventListener('click', () => {
   todaysRainCard.hidden = true
   todaysRainTrigger.setAttribute('aria-expanded', 'false')
   todaysRainTrigger.focus()
-})
-
-document.querySelectorAll('[data-rain-level]').forEach((button) => {
-  button.addEventListener('click', () => {
-    clearAtmospherePreset()
-    state.rain = button.dataset.rainLevel
-    storage.set('monsoon-rain', state.rain)
-    drops = []
-    if (state.rainEnabled) playRainAmbience()
-    updateMixer()
-  })
 })
 
 thunderToggle.addEventListener('click', () => {
@@ -932,8 +896,13 @@ rainVolume.addEventListener('input', () => {
   storage.set('monsoon-rain-volume', String(state.rainVolume))
   rainAudio.volume = state.rainVolume / 100
   thunderAudio.volume = Math.min(.45, (state.rainVolume / 100) * .55)
+  if (state.rainVolume > 0 && !state.rainEnabled) {
+    state.rainEnabled = true
+    storage.set('monsoon-rain-enabled', 'true')
+  }
+  if (state.rainVolume > 0 && rainAudio.paused) playRainAmbience()
   $('#rain-volume-output').textContent = `${state.rainVolume}%`
-  $('#rain-mixer-summary').textContent = `${rainLabel(state.rain)} · ${state.rainVolume}%`
+  $('#rain-mixer-summary').textContent = `Rain · ${state.rainVolume}%`
   updateMixer()
 })
 
@@ -941,51 +910,267 @@ updateMixer()
 if (state.rainEnabled) setMixerNote('Rain is ready and will begin after your next interaction.')
 if (state.thunderEnabled) setMixerNote('Rain and distant thunder are ready for your next interaction.')
 
-const canvas = $('#rain-canvas')
-const context = canvas.getContext('2d')
-let drops = []
+const bgCanvas = $('#rain-canvas')
+const bgContext = bgCanvas ? bgCanvas.getContext('2d') : null
+const fgCanvas = $('#fg-rain-canvas')
+const fgContext = fgCanvas ? fgCanvas.getContext('2d') : null
+
+let bgDrops = []
+let staticDroplets = []
+let slidingDroplets = []
 let rainFrame = 0
 let lightningTimer = 0
 let width = 0
 let height = 0
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 
+function getRainParams() {
+  const vol = state.rainEnabled ? (state.rainVolume || 30) : 0
+  if (vol <= 0) return { bgCount: 0, bgSpeed: 0, bgLen: 0, staticCount: 0, slidingCount: 0, slidingSpeed: 0 }
+  if (vol <= 25) {
+    return { bgCount: 50, bgSpeed: 0.7, bgLen: 0.65, staticCount: 40, slidingCount: 1, slidingSpeed: 0.5 }
+  }
+  if (vol <= 45) {
+    return { bgCount: 110, bgSpeed: 1.0, bgLen: 1.0, staticCount: 75, slidingCount: 2, slidingSpeed: 0.9 }
+  }
+  if (vol <= 68) {
+    return { bgCount: 180, bgSpeed: 1.3, bgLen: 1.3, staticCount: 105, slidingCount: 4, slidingSpeed: 1.4 }
+  }
+  return { bgCount: 260, bgSpeed: 1.6, bgLen: 1.6, staticCount: 140, slidingCount: 6, slidingSpeed: 2.0 }
+}
+
 function resizeRain() {
   const ratio = Math.min(devicePixelRatio || 1, 1.5)
   width = innerWidth
   height = innerHeight
-  canvas.width = width * ratio
-  canvas.height = height * ratio
-  canvas.style.width = `${width}px`
-  canvas.style.height = `${height}px`
-  context.setTransform(ratio, 0, 0, ratio, 0, 0)
-  drops = []
-}
-
-function makeDrop(top = false) {
-  const setting = rainLevels[state.rain] || rainLevels.Rain
-  return { x: Math.random() * width, y: top ? Math.random() * height : -20, length: (8 + Math.random() * 24) * setting.length, speed: (4 + Math.random() * 7) * setting.speed, opacity: .08 + Math.random() * .2, drift: .35 + Math.random() * .9 }
-}
-
-function drawRain() {
-  const setting = rainLevels[state.rain] || rainLevels.Rain
-  while (drops.length < setting.count) drops.push(makeDrop(true))
-  if (drops.length > setting.count) drops.length = setting.count
-  context.clearRect(0, 0, width, height)
-  context.lineWidth = .7
-  for (let index = 0; index < drops.length; index += 1) {
-    const drop = drops[index]
-    const day = document.documentElement.dataset.theme === 'day'
-    context.strokeStyle = day ? `rgba(64,89,101,${Math.min(.32, drop.opacity * .95)})` : `rgba(184,214,220,${drop.opacity})`
-    context.beginPath()
-    context.moveTo(drop.x, drop.y)
-    context.lineTo(drop.x - drop.drift, drop.y + drop.length)
-    context.stroke()
-    drop.y += drop.speed
-    drop.x -= drop.drift * .16
-    if (drop.y > height + 30) drops[index] = makeDrop()
+  
+  if (bgCanvas) {
+    bgCanvas.width = width * ratio
+    bgCanvas.height = height * ratio
+    bgCanvas.style.width = `${width}px`
+    bgCanvas.style.height = `${height}px`
+    bgContext.setTransform(ratio, 0, 0, ratio, 0, 0)
   }
-  rainFrame = requestAnimationFrame(drawRain)
+
+  if (fgCanvas) {
+    fgCanvas.width = width * ratio
+    fgCanvas.height = height * ratio
+    fgCanvas.style.width = `${width}px`
+    fgCanvas.style.height = `${height}px`
+    fgContext.setTransform(ratio, 0, 0, ratio, 0, 0)
+  }
+
+  bgDrops = []
+  initStaticDroplets()
+  slidingDroplets = []
+}
+
+function initStaticDroplets() {
+  staticDroplets = []
+  const maxStatic = 150
+  for (let i = 0; i < maxStatic; i++) {
+    staticDroplets.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: 1.0 + Math.random() * 1.8,
+      shimmer: Math.random() * Math.PI * 2,
+      shimmerSpeed: 0.01 + Math.random() * 0.02,
+      active: true
+    })
+  }
+}
+
+function makeBgDrop(top = false) {
+  const params = getRainParams()
+  return {
+    x: Math.random() * width,
+    y: top ? Math.random() * height : -30,
+    length: (10 + Math.random() * 26) * (params.bgLen || 1),
+    speed: (4.5 + Math.random() * 6.5) * (params.bgSpeed || 1),
+    opacity: 0.08 + Math.random() * 0.22,
+    drift: 0.35 + Math.random() * 0.9
+  }
+}
+
+function makeSlidingDroplet() {
+  const params = getRainParams()
+  return {
+    x: 10 + Math.random() * (width - 20),
+    y: -20 - Math.random() * 120,
+    r: 1.5 + Math.random() * 1.5,
+    vy: (0.35 + Math.random() * 0.6) * (params.slidingSpeed || 1),
+    maxVy: (1.2 + Math.random() * 1.6) * (params.slidingSpeed || 1),
+    tailLength: 12 + Math.random() * 25,
+    opacity: 0.45 + Math.random() * 0.3
+  }
+}
+
+function renderRainSystem() {
+  const params = getRainParams()
+  const isDay = document.documentElement.dataset.theme === 'day'
+  const player = $('#music-player')
+  const pRect = player ? player.getBoundingClientRect() : null
+
+  // 1. Render Background Rain Lines
+  if (bgContext) {
+    bgContext.clearRect(0, 0, width, height)
+    if (params.bgCount > 0) {
+      while (bgDrops.length < params.bgCount) bgDrops.push(makeBgDrop(true))
+      if (bgDrops.length > params.bgCount) bgDrops.length = params.bgCount
+
+      bgContext.lineWidth = 0.8
+      for (let i = 0; i < bgDrops.length; i++) {
+        const drop = bgDrops[i]
+        bgContext.strokeStyle = isDay 
+          ? `rgba(64,89,101,${Math.min(0.32, drop.opacity * 0.95)})` 
+          : `rgba(184,214,220,${drop.opacity})`
+        bgContext.beginPath()
+        bgContext.moveTo(drop.x, drop.y)
+        bgContext.lineTo(drop.x - drop.drift, drop.y + drop.length)
+        bgContext.stroke()
+
+        drop.y += drop.speed
+        drop.x -= drop.drift * 0.16
+        if (drop.y > height + 30) bgDrops[i] = makeBgDrop(false)
+      }
+    }
+  }
+
+  // 2. Render Foreground Glass Droplets (Interacting with Player)
+  if (fgContext) {
+    fgContext.clearRect(0, 0, width, height)
+
+    // Render static glass condensation beads
+    const activeStaticLimit = Math.min(staticDroplets.length, params.staticCount)
+    for (let i = 0; i < activeStaticLimit; i++) {
+      const s = staticDroplets[i]
+      if (!s.active) continue
+
+      s.shimmer += s.shimmerSpeed
+      const shimAlpha = 0.75 + Math.sin(s.shimmer) * 0.25
+      const inPlayer = pRect && (s.x >= pRect.left && s.x <= pRect.right && s.y >= pRect.top && s.y <= pRect.bottom)
+      const alphaMult = inPlayer ? 0.3 : 0.55
+
+      fgContext.beginPath()
+      fgContext.arc(s.x, s.y, s.r, 0, Math.PI * 2)
+      fgContext.fillStyle = isDay 
+        ? `rgba(70,95,105,${0.22 * shimAlpha * alphaMult})` 
+        : `rgba(180,215,235,${0.28 * shimAlpha * alphaMult})`
+      fgContext.fill()
+
+      fgContext.beginPath()
+      fgContext.arc(s.x, s.y - s.r * 0.3, s.r * 0.6, Math.PI * 1.1, Math.PI * 1.9)
+      fgContext.strokeStyle = isDay 
+        ? `rgba(255,255,255,${0.5 * shimAlpha * alphaMult})` 
+        : `rgba(255,255,255,${0.85 * shimAlpha * alphaMult})`
+      fgContext.lineWidth = 0.5
+      fgContext.stroke()
+    }
+
+    // Render sliding droplets & wet trails
+    if (params.slidingCount > 0) {
+      while (slidingDroplets.length < params.slidingCount) slidingDroplets.push(makeSlidingDroplet())
+      if (slidingDroplets.length > params.slidingCount) slidingDroplets.length = params.slidingCount
+
+      for (let i = 0; i < slidingDroplets.length; i++) {
+        const d = slidingDroplets[i]
+
+        const overPlayer = pRect && (d.x >= pRect.left - 5 && d.x <= pRect.right + 5 && d.y >= pRect.top - 10 && d.y <= pRect.bottom + 10)
+        const hittingTopEdge = pRect && (d.x >= pRect.left && d.x <= pRect.right && Math.abs(d.y - pRect.top) < 8)
+
+        if (hittingTopEdge) {
+          d.vy = Math.max(0.3, d.vy * 0.85)
+        } else {
+          d.vy = Math.min(d.maxVy, d.vy + 0.025)
+        }
+
+        d.y += d.vy
+
+        // Absorb static droplets
+        for (let j = 0; j < activeStaticLimit; j++) {
+          const s = staticDroplets[j]
+          if (s.active && Math.abs(s.x - d.x) < d.r * 2.0 && Math.abs(s.y - d.y) < d.r * 2.0) {
+            s.active = false
+            d.vy = Math.min(d.maxVy + 0.4, d.vy + 0.15)
+            d.r = Math.min(4.0, d.r + 0.1)
+            setTimeout(() => {
+              s.x = Math.random() * width
+              s.y = Math.random() * height
+              s.active = true
+            }, 4000 + Math.random() * 8000)
+          }
+        }
+
+        // Render delicate, thin wet trail
+        const tailY = d.y - d.tailLength
+        const grad = fgContext.createLinearGradient(d.x, tailY, d.x, d.y)
+        const opacityMult = overPlayer ? 0.3 : 0.6
+
+        if (isDay) {
+          grad.addColorStop(0, 'rgba(70,95,105,0)')
+          grad.addColorStop(0.7, `rgba(70,95,105,${0.14 * opacityMult})`)
+          grad.addColorStop(1, `rgba(70,95,105,${0.28 * opacityMult})`)
+        } else {
+          grad.addColorStop(0, 'rgba(215,240,255,0)')
+          grad.addColorStop(0.7, `rgba(215,240,255,${0.2 * opacityMult})`)
+          grad.addColorStop(1, `rgba(255,255,255,${0.4 * opacityMult})`)
+        }
+
+        fgContext.beginPath()
+        fgContext.moveTo(d.x, tailY)
+        fgContext.lineTo(d.x, d.y)
+        fgContext.strokeStyle = grad
+        fgContext.lineWidth = Math.max(0.8, d.r * 0.5)
+        fgContext.stroke()
+
+        // Render teardrop lens body
+        const stretchY = 1 + d.vy * 0.1
+        fgContext.save()
+        fgContext.translate(d.x, d.y)
+        fgContext.scale(1, stretchY)
+
+        // Outer soft lens shadow
+        fgContext.beginPath()
+        fgContext.ellipse(0, 0, d.r * 0.9, d.r * 1.1, 0, 0, Math.PI * 2)
+        fgContext.fillStyle = isDay ? `rgba(20,35,45,${0.18 * opacityMult})` : `rgba(0,0,0,${0.32 * opacityMult})`
+        fgContext.fill()
+
+        // Liquid bead body
+        fgContext.beginPath()
+        fgContext.ellipse(0, d.r * 0.05, d.r * 0.85, d.r * 1.0, 0, 0, Math.PI * 2)
+        fgContext.fillStyle = isDay 
+          ? `rgba(180,205,215,${0.22 * opacityMult})` 
+          : `rgba(140,185,210,${0.3 * opacityMult})`
+        fgContext.fill()
+
+        // Top specular highlight crescent
+        fgContext.beginPath()
+        fgContext.arc(0, -d.r * 0.35, d.r * 0.55, Math.PI * 1.15, Math.PI * 1.85)
+        fgContext.strokeStyle = isDay 
+          ? `rgba(255,255,255,${0.75 * opacityMult})` 
+          : `rgba(255,255,255,${0.9 * opacityMult})`
+        fgContext.lineWidth = 0.7
+        fgContext.stroke()
+
+        // Dark bottom refraction shadow rim
+        fgContext.beginPath()
+        fgContext.arc(0, d.r * 0.45, d.r * 0.55, Math.PI * 0.15, Math.PI * 0.85)
+        fgContext.strokeStyle = isDay 
+          ? `rgba(30,45,55,${0.35 * opacityMult})` 
+          : `rgba(10,20,30,${0.45 * opacityMult})`
+        fgContext.lineWidth = 0.6
+        fgContext.stroke()
+
+        fgContext.restore()
+
+        if (d.y > height + 40) {
+          slidingDroplets[i] = makeSlidingDroplet()
+        }
+      }
+    }
+  }
+
+  rainFrame = requestAnimationFrame(renderRainSystem)
 }
 
 function scheduleLightning() {
@@ -1000,14 +1185,14 @@ function scheduleLightning() {
 resizeRain()
 addEventListener('resize', resizeRain)
 if (!reducedMotion) {
-  rainFrame = requestAnimationFrame(drawRain)
+  rainFrame = requestAnimationFrame(renderRainSystem)
   scheduleLightning()
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       cancelAnimationFrame(rainFrame)
       clearTimeout(lightningTimer)
     } else {
-      rainFrame = requestAnimationFrame(drawRain)
+      rainFrame = requestAnimationFrame(renderRainSystem)
       scheduleLightning()
     }
   })
