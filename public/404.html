@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0C2YYJ4530"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      let analyticsConsent = 'denied';
+      try { analyticsConsent = localStorage.getItem('monsoon-analytics-consent') === 'granted' ? 'granted' : 'denied'; } catch (_) {}
+      gtag('consent', 'default', { analytics_storage: analyticsConsent, ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+      gtag('js', new Date());
+      gtag('config', 'G-0C2YYJ4530');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex, follow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/info.css" />
+    <title>Lost in the Rain — Monsoon Radio</title>
+  </head>
+  <body>
+    <main class="info-page">
+      <p class="info-page__eyebrow">404 · Lost in the rain</p>
+      <h1>This road ends here.</h1>
+      <p>The page you followed has disappeared into the monsoon. The radio is still playing back at the window.</p>
+      <a class="info-page__button" href="/">Return to Monsoon Radio</a>
+    </main>
+  </body>
+</html>

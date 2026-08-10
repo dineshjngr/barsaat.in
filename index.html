@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en-IN" data-theme="night">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0C2YYJ4530"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      let analyticsConsent = 'denied';
+      try { analyticsConsent = localStorage.getItem('monsoon-analytics-consent') === 'granted' ? 'granted' : 'denied'; } catch (_) {}
+      gtag('consent', 'default', {
+        analytics_storage: analyticsConsent,
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-0C2YYJ4530');
+    </script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="google-site-verification" content="h8eGO0GP8x0kA8zmagd47qFXEa6DDtGCc_yycQ0H9N4" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="application-name" content="Monsoon Radio" />
+    <meta name="apple-mobile-web-app-title" content="Monsoon Radio" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#071319" />
+    <meta name="description" content="Rain-soaked songs for quiet nights." />
+    <link rel="canonical" href="https://barsaat.in/" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:title" content="बरसात — Monsoon Radio" />
+    <meta property="og:description" content="Rain-soaked songs for quiet nights." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://barsaat.in/" />
+    <meta property="og:site_name" content="Monsoon Radio" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:image" content="https://barsaat.in/social-card.jpg" />
+    <meta property="og:image:secure_url" content="https://barsaat.in/social-card.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="675" />
+    <meta property="og:image:alt" content="Monsoon rain falling across a softly lit Indian city at night" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="बरसात — Monsoon Radio" />
+    <meta name="twitter:description" content="Rain-soaked songs for quiet nights." />
+    <meta name="twitter:image" content="https://barsaat.in/social-card.jpg" />
+    <meta name="twitter:image:alt" content="Monsoon rain falling across a softly lit Indian city at night" />
+    <title>बरसात — Monsoon Radio</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Monsoon Radio",
+        "alternateName": "बरसात",
+        "url": "https://barsaat.in/",
+        "description": "Rain-soaked songs for quiet nights.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript and an HTML5-compatible browser",
+        "inLanguage": ["en-IN", "hi-IN"],
+        "image": "https://barsaat.in/social-card.jpg",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "INR"
+        }
+      }
+    </script>
+    <script>
+      try {
+        const sharedTheme = /^\/listen\/[A-Za-z0-9_-]{11}\/?$/.test(location.pathname) ? new URLSearchParams(location.search).get('theme') : null
+        const savedTheme = sharedTheme === 'day' || sharedTheme === 'night' ? sharedTheme : localStorage.getItem('monsoon-theme')
+        document.documentElement.dataset.theme = savedTheme === 'day' || savedTheme === 'night' ? savedTheme : 'night'
+      } catch (_) {}
+    </script>
+    <link rel="stylesheet" href="/src/index.css" />
+    <link rel="stylesheet" href="/src/App.css" />
+    <link rel="stylesheet" href="/src/components/theme-switch.css" />
+  </head>
+  <body>
+    <div id="root">
+      <main class="radio-app">
+        <div class="yt-host" aria-hidden="true"><div id="yt-player"></div></div>
+        <div class="scene scene--rain" aria-hidden="true"><div class="scene__photo scene__photo--night"></div><div class="scene__photo scene__photo--day"></div><canvas class="rain-canvas" id="rain-canvas"></canvas></div>
+        <div class="radio-content">
+          <h1 class="sr-only">बरसात — Monsoon Radio</h1>
+          <header class="topbar">
+            <time class="clock"><span id="clock-hours">12</span><span class="clock__colon">:</span><span id="clock-minutes">00</span><small id="clock-period">am</small></time>
+            <div class="presence" aria-live="polite" aria-label="Checking live listeners"><span class="presence__indicator"><span class="presence__dot"></span></span><span class="presence__count" id="presence-count">…</span><span class="presence__label" id="presence-label">listeners online</span></div>
+            <div class="topbar__actions">
+              <label class="theme-switch"><input class="theme-switch__input" id="theme-switch" type="checkbox" role="switch" aria-label="Switch to day mode" aria-keyshortcuts="D" /><span class="theme-switch__icon" aria-hidden="true"><span class="theme-switch__icon-part theme-switch__icon-part--1"></span><span class="theme-switch__icon-part theme-switch__icon-part--2"></span><span class="theme-switch__icon-part theme-switch__icon-part--3"></span><span class="theme-switch__icon-part theme-switch__icon-part--4"></span><span class="theme-switch__icon-part theme-switch__icon-part--5"></span><span class="theme-switch__icon-part theme-switch__icon-part--6"></span><span class="theme-switch__icon-part theme-switch__icon-part--7"></span><span class="theme-switch__icon-part theme-switch__icon-part--8"></span><span class="theme-switch__icon-part theme-switch__icon-part--9"></span><span class="theme-switch__icon-part theme-switch__icon-part--10"></span><span class="theme-switch__icon-part theme-switch__icon-part--11"></span></span><span class="theme-switch__sr">Theme</span></label>
+              <a class="topbar__service" aria-label="Open on YouTube Music" href="https://music.youtube.com/playlist?list=OLAK5uy_nrsol77KIGNjXoQrCTMw0tU1E2FjTeZ4I" target="_blank" rel="noopener noreferrer"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 16.1A6.1 6.1 0 1 1 12 5.9a6.1 6.1 0 0 1 0 12.2Zm0-11.4a5.3 5.3 0 1 0 0 10.6 5.3 5.3 0 0 0 0-10.6Zm-2 8.3V9l5.2 3-5.2 3Z" fill="currentColor" /></svg><span class="topbar__service-label">YT Music</span><span class="topbar__service-arrow"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6h-2V7.4l-8.3 8.3-1.4-1.4L16.6 6H14V4Z" fill="currentColor" /></svg></span></a>
+              <div class="keyboard-help">
+                <button class="keyboard-help__trigger" id="keyboard-help-trigger" type="button" aria-label="Show keyboard shortcuts" aria-expanded="false" aria-controls="keyboard-help-panel" aria-keyshortcuts="?">?</button>
+                <div class="keyboard-help__panel" id="keyboard-help-panel" role="dialog" aria-label="Keyboard shortcuts" hidden>
+                  <header><strong>KEYBOARD</strong><span>desktop</span></header>
+                  <dl>
+                    <div><dt><kbd>Space</kbd></dt><dd>Play / Pause</dd></div>
+                    <div><dt><kbd>→</kbd></dt><dd>Next track</dd></div>
+                    <div><dt><kbd>←</kbd></dt><dd>Previous track</dd></div>
+                    <div><dt><kbd>M</kbd></dt><dd>Mute music</dd></div>
+                    <div><dt><kbd>R</kbd></dt><dd>Rain controls</dd></div>
+                    <div><dt><kbd>D</kbd></dt><dd>Day / Night</dd></div>
+                  </dl>
+                  <p id="keyboard-help-status" aria-live="polite">Shortcuts are ready.</p>
+                </div>
+                <span class="sr-only" id="keyboard-shortcut-live" aria-live="polite"></span>
+              </div>
+            </div>
+          </header>
+          <section class="player-shell deluxe-player" id="music-player" aria-label="Music player" aria-busy="false"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="player-ref deluxe-player__content"><div class="vinyl-disc" aria-hidden="true"><img class="vinyl-disc__art" id="album-art" src="/covers/monsoon-fallback.svg" alt="" /><span class="vinyl-disc__spindle"></span><span class="vinyl-disc__shine"></span></div><div class="deluxe-player__meta"><div class="player-ref__legend"><h2 id="track-title">Monsoon Radio</h2><p id="track-artist" aria-live="polite">Tap play to enter the rain</p></div><div class="progress progress--reference"><input id="seek" aria-label="Seek through song" type="range" min="0" max="0" step="0.1" value="0" style="--progress: 0%" /><div class="progress__time"><span id="current-time">0:00</span><span id="duration">0:00</span></div></div></div><div class="player-ref__controls deluxe-player__controls"><button class="icon-button" id="shuffle" aria-label="Toggle shuffle" aria-pressed="true" type="button"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5h-2V6.4l-3.6 3.6-1.4-1.4L17.6 5H16V3ZM4 6h2.3l10.3 10.3-1.4 1.4L5.5 8H4V6Zm14.3 8 1.7 1.7V14h2v5h-5v-2h1.6l-1.7-1.7 1.4-1.3Z" fill="currentColor" /></svg></button><button class="icon-button" id="previous" aria-label="Previous track" aria-keyshortcuts="ArrowLeft" type="button"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="m19 5-9 7 9 7V5ZM7 5H4v14h3z" fill="currentColor" /></svg></button><button class="play-button play-button--reference" id="play" aria-label="Play" aria-keyshortcuts="Space" type="button"><svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><path id="play-icon" d="m8 5 11 7-11 7V5Z" fill="currentColor" /></svg></button><button class="icon-button" id="next" aria-label="Next track" aria-keyshortcuts="ArrowRight" type="button"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 5 9 7-9 7V5Zm10 0h3v14h-3z" fill="currentColor" /></svg></button><button class="icon-button" id="share" aria-label="Share current moment" aria-haspopup="dialog" aria-controls="share-popover" aria-expanded="false" type="button" disabled><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.9a3.4 3.4 0 0 0 0-2.6l6.7-3.9A3 3 0 1 0 15 5c0 .2 0 .4.1.6L8.4 9.5a3 3 0 1 0 0 5l6.7 3.9A3 3 0 1 0 18 16Z" fill="currentColor" /></svg></button></div></div></section>
+          <aside class="share-popover" id="share-popover" role="dialog" aria-label="Share current moment" hidden>
+            <header><strong>SHARE THIS RAINY MOMENT</strong><button id="share-close" type="button" aria-label="Close sharing options">×</button></header>
+            <div class="share-popover__options">
+              <a id="share-whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+              <a id="share-x" target="_blank" rel="noopener noreferrer">X</a>
+              <a id="share-facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+              <a id="share-telegram" target="_blank" rel="noopener noreferrer">Telegram</a>
+              <button id="share-copy" type="button">Copy link</button>
+              <button id="share-native" type="button">More…</button>
+            </div>
+          </aside>
+          <section class="todays-rain" id="todays-rain">
+            <button class="todays-rain__trigger" id="todays-rain-trigger" type="button" aria-label="Start today's rain session" aria-expanded="false" aria-controls="todays-rain-card"><strong lang="hi">आज की बारिश</strong><span>Today's rain</span></button>
+            <article class="todays-rain__card" id="todays-rain-card" aria-label="Today's rain session" hidden>
+              <header><div><time id="todays-rain-time">11:48 PM</time><span id="todays-rain-weather">Heavy rain</span></div><button id="todays-rain-close" type="button" aria-label="Close today's rain card">×</button></header>
+              <h2 id="todays-rain-title">Finding a song…</h2>
+              <p id="todays-rain-artist">Monsoon Radio</p>
+              <blockquote id="todays-rain-line">Some nights sound better in the rain.</blockquote>
+            </article>
+          </section>
+          <aside class="rain-mixer" id="rain-mixer">
+            <button class="rain-mixer__trigger" id="rain-mixer-trigger" type="button" aria-label="Open rain ambience mixer" aria-expanded="false" aria-controls="rain-mixer-panel" aria-keyshortcuts="R">
+              <span class="rain-mixer__icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M7.2 18.2 6 21m6-2.8L10.8 21m6-2.8L15.8 21M6.5 16a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 17.5 8a4 4 0 0 1-.5 8H6.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+              <span><small>RAIN</small><strong id="rain-mixer-summary">Rain · 30%</strong></span>
+              <svg class="rain-mixer__chevron" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="rain-mixer__panel" id="rain-mixer-panel" role="dialog" aria-label="Rain ambience mixer" hidden>
+              <header><div><small>AMBIENCE MIXER</small><strong>Rain beside the music</strong></div><button class="rain-mixer__power" id="rain-ambience-toggle" type="button" aria-label="Toggle rain ambience" aria-pressed="false"><span></span><b>OFF</b></button></header>
+              <div class="rain-mixer__presets" aria-label="Atmosphere presets">
+                <small>ATMOSPHERE PRESETS</small>
+                <div>
+                  <button type="button" data-atmosphere-preset="window-seat" aria-pressed="false"><strong>WINDOW SEAT</strong><span>light rain · music 70%</span></button>
+                  <button type="button" data-atmosphere-preset="midnight" aria-pressed="false"><strong>MIDNIGHT</strong><span>heavy rain · music 55%</span></button>
+                  <button type="button" data-atmosphere-preset="chai-rain" aria-pressed="false"><strong>CHAI &amp; RAIN</strong><span>drizzle · music 75%</span></button>
+                  <button type="button" data-atmosphere-preset="cloud-burst" aria-pressed="false"><strong>CLOUD BURST</strong><span>storm · music 60%</span></button>
+                </div>
+              </div>
+              <div class="rain-mixer__levels" aria-label="Rain intensity">
+                <button type="button" data-rain-level="Drizzle" aria-pressed="false">Drizzle</button>
+                <button type="button" data-rain-level="Rain" aria-pressed="true">Rain</button>
+                <button type="button" data-rain-level="Heavy" aria-pressed="false">Heavy rain</button>
+                <button type="button" data-rain-level="Cloudburst" aria-pressed="false">Cloudburst</button>
+              </div>
+              <button class="rain-mixer__thunder" id="thunder-toggle" type="button" aria-pressed="false"><span class="rain-mixer__status-dot"></span><span>Distant thunder</span><b>OFF</b></button>
+              <label class="rain-mixer__volume"><span>Music <output id="music-volume-output">65%</output></span><input id="music-volume" type="range" min="0" max="100" value="65" aria-label="Music volume" /></label>
+              <label class="rain-mixer__volume"><span>Rain <output id="rain-volume-output">30%</output></span><input id="rain-volume" type="range" min="0" max="100" value="30" aria-label="Rain ambience volume" /></label>
+              <p class="rain-mixer__note" id="rain-mixer-note" aria-live="polite">Rain begins after you turn ambience on.</p>
+            </div>
+          </aside>
+          <aside class="site-context" aria-label="About and privacy"><p>Rain-soaked songs for quiet nights.</p><nav><a href="/about.html">About</a><a href="/privacy.html">Privacy</a></nav></aside>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

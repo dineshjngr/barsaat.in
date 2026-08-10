@@ -1,0 +1,17 @@
+{
+  "name": "monsoon-radio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint src/main.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "oxlint": "^1.75.0",
+    "vite": "^8.2.0"
+  }
+}

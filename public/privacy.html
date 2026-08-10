@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0C2YYJ4530"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      let analyticsConsent = 'denied';
+      try { analyticsConsent = localStorage.getItem('monsoon-analytics-consent') === 'granted' ? 'granted' : 'denied'; } catch (_) {}
+      gtag('consent', 'default', { analytics_storage: analyticsConsent, ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+      gtag('js', new Date());
+      gtag('config', 'G-0C2YYJ4530');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Privacy information for Monsoon Radio." />
+    <link rel="canonical" href="https://barsaat.in/privacy.html" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/info.css" />
+    <title>Privacy — Monsoon Radio</title>
+  </head>
+  <body>
+    <main class="info-page">
+      <p class="info-page__eyebrow">Privacy</p>
+      <h1>Your quiet stays yours.</h1>
+      <p>Monsoon Radio stores your theme, shuffle and analytics choices in your browser. It does not maintain user accounts or operate its own tracking backend.</p>
+      <h2>Optional analytics</h2>
+      <p>With your permission, Google Analytics measures general visits and interactions. Advertising storage and ad personalisation remain disabled. Choosing essential-only leaves analytics storage denied.</p>
+      <h2>Music playback</h2>
+      <p>The YouTube player is requested only after you press play. YouTube may then process playback information under its own privacy terms.</p>
+      <button id="reset-consent" type="button">Reset analytics choice</button>
+      <nav class="info-page__nav"><a href="/">Listen</a><a href="/about.html">About</a></nav>
+    </main>
+    <script>
+      document.getElementById('reset-consent').addEventListener('click', function () {
+        try { localStorage.removeItem('monsoon-analytics-consent'); } catch (_) {}
+        gtag('consent', 'update', { analytics_storage: 'denied' });
+        this.textContent = 'Choice reset';
+      });
+    </script>
+  </body>
+</html>

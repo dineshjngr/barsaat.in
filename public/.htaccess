@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# Use one canonical hostname.
+RewriteCond %{HTTP_HOST} ^www\.barsaat\.in$ [NC]
+RewriteRule ^ https://barsaat.in%{REQUEST_URI} [R=301,L,NE]
+
+# Track-specific listening pages render crawler-visible metadata, then serve the same Vite app.
+RewriteRule ^listen/([A-Za-z0-9_-]{11})/?$ /listen/index.php?v=$1 [L,QSA]
+
+ErrorDocument 404 /404.html
+
+Options -Indexes
+
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://i.ytimg.com https://*.googleusercontent.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.youtube.com https://*.googlevideo.com; media-src 'self' blob: https://*.googlevideo.com; upgrade-insecure-requests"
+</IfModule>
