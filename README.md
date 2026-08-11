@@ -25,20 +25,12 @@ Barsaat is an atmospheric web-based music experience combining YouTube-powered p
 - Canvas rain with Drizzle, Rain, Heavy Rain, and Cloudburst intensities
 - Independent music and rain ambience volume controls
 - Optional distant thunder
-- Atmosphere presets for Window Seat, Midnight, Chai & Rain, and Cloud Burst
 - Liquid-glass controls and responsive mobile composition
 - Live listener indicator with a resilient local preview fallback
 - Media Session support and desktop keyboard controls
 - Social sharing for the current track
 - Dynamic song-level Open Graph metadata and 1200×630 share artwork
 - Reduced-motion support, structured metadata, sitemap, and branded 404 page
-
-## Atmosphere Presets
-
-- **Window Seat** — light rain with the music forward
-- **Midnight** — heavier rain and a softer mix
-- **Chai & Rain** — drizzle with a warmer listening balance
-- **Cloud Burst** — the strongest storm atmosphere
 
 ## Tech Stack
 

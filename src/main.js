@@ -19,12 +19,6 @@ const FALLBACK_ART = '/covers/monsoon-fallback.svg'
 const RAIN_AUDIO = '/audio/liecio-light-rain-109591.mp3'
 const THUNDER_AUDIO = '/audio/thunder-sound.mp3'
 const THUNDER_FALLBACK = '/audio/distant-thunder.wav'
-const atmospherePresets = {
-  'window-seat': { musicVolume: 70, rainVolume: 30 },
-  midnight: { musicVolume: 55, rainVolume: 42 },
-  'chai-rain': { musicVolume: 75, rainVolume: 24 },
-  'cloud-burst': { musicVolume: 60, rainVolume: 52 },
-}
 const todaysRainLines = [
   'Some nights sound better in the rain.',
   'The city softens when the windows begin to sing.',
@@ -66,10 +60,9 @@ const state = {
   playlistIndex: Math.floor(Math.random() * PLAYLIST_IDS.length),
   playlistPrepared: false,
   rainEnabled: storage.get('monsoon-rain-enabled') !== 'false',
-  thunderEnabled: true,
+  thunderEnabled: storage.get('monsoon-thunder-enabled') !== 'false',
   musicVolume: storedVolume('monsoon-music-volume', 65),
   rainVolume: storedVolume('monsoon-rain-volume', 20),
-  atmospherePreset: storage.get('monsoon-atmosphere-preset'),
   musicMuted: false,
   todaySessionActive: false,
   sharedVideoId: sharedMoment?.videoId || '',
@@ -77,7 +70,6 @@ const state = {
   sharedTrackLoaded: false,
   sharedSeekApplied: false,
 }
-if (!atmospherePresets[state.atmospherePreset]) state.atmospherePreset = null
 
 const $ = (selector) => document.querySelector(selector)
 const playerElement = $('#music-player')
@@ -580,36 +572,17 @@ function updateMixer() {
     const statusB = rainAmbienceToggle.querySelector('b')
     if (statusB) statusB.textContent = state.rainEnabled ? 'ON' : 'OFF'
   }
+  if (thunderToggle) {
+    thunderToggle.setAttribute('aria-pressed', String(state.thunderEnabled))
+    const statusB = thunderToggle.querySelector('b')
+    if (statusB) statusB.textContent = state.thunderEnabled ? 'ON' : 'OFF'
+  }
   if (musicVolume) musicVolume.value = String(state.musicVolume)
   if (rainVolume) rainVolume.value = String(state.rainVolume)
   const musicOut = $('#music-volume-output')
   if (musicOut) musicOut.textContent = `${state.musicVolume}%`
   const rainOut = $('#rain-volume-output')
   if (rainOut) rainOut.textContent = `${state.rainVolume}%`
-}
-
-function clearAtmospherePreset() {
-  state.atmospherePreset = null
-  storage.set('monsoon-atmosphere-preset', '')
-}
-
-function applyAtmospherePreset(presetKey) {
-  const preset = atmospherePresets[presetKey]
-  if (!preset) return false
-
-  state.atmospherePreset = presetKey
-  state.musicVolume = preset.musicVolume
-  state.rainVolume = preset.rainVolume
-  state.rainEnabled = true
-  storage.set('monsoon-atmosphere-preset', presetKey)
-  storage.set('monsoon-rain-enabled', 'true')
-  storage.set('monsoon-music-volume', String(state.musicVolume))
-  storage.set('monsoon-rain-volume', String(state.rainVolume))
-  drops = []
-  state.player?.setVolume(state.musicVolume)
-  playRainAmbience()
-  updateMixer()
-  return true
 }
 
 function setMixerNote(message) {
@@ -863,10 +836,6 @@ if (rainAmbienceToggle) {
   })
 }
 
-document.querySelectorAll('[data-atmosphere-preset]').forEach((button) => {
-  button.addEventListener('click', () => applyAtmospherePreset(button.dataset.atmospherePreset))
-})
-
 todaysRainTrigger.addEventListener('click', () => {
   closeSharePopover()
 
@@ -902,7 +871,7 @@ todaysRainTrigger.addEventListener('click', () => {
     const randomIndex = Math.floor(Math.random() * listLen)
     state.player.loadPlaylist({ listType: 'playlist', list: activePlaylist(), index: randomIndex })
     setTimeout(() => {
-      try { state.player.playVideo() } catch (_) {}
+      try { state.player.playVideo() } catch {}
     }, 150)
   }
 })
@@ -930,7 +899,6 @@ if (thunderToggle) {
 }
 
 musicVolume.addEventListener('input', () => {
-  clearAtmospherePreset()
   state.musicVolume = Number(musicVolume.value)
   storage.set('monsoon-music-volume', String(state.musicVolume))
   state.player?.setVolume(state.musicVolume)
@@ -939,7 +907,6 @@ musicVolume.addEventListener('input', () => {
 })
 
 rainVolume.addEventListener('input', () => {
-  clearAtmospherePreset()
   state.rainVolume = Number(rainVolume.value)
   storage.set('monsoon-rain-volume', String(state.rainVolume))
   rainAudio.volume = state.rainVolume / 100
