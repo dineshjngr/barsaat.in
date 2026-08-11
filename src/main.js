@@ -134,8 +134,8 @@ function renderPresence(count, isLive = true) {
   if (isLive) presenceAvailable = true
   presenceElement.classList.add('is-updating')
   presenceCount.textContent = new Intl.NumberFormat().format(count)
-  presenceLabel.textContent = count === 1 ? 'listener online' : 'listeners online'
-  presenceElement.setAttribute('aria-label', `${count} ${count === 1 ? 'listener' : 'listeners'} online`)
+  presenceLabel.textContent = count === 1 ? 'listener in the rain' : 'listeners in the rain'
+  presenceElement.setAttribute('aria-label', `${count} ${count === 1 ? 'listener' : 'listeners'} in the rain`)
   setTimeout(() => presenceElement.classList.remove('is-updating'), 220)
 }
 
@@ -680,8 +680,8 @@ function currentShareMoment() {
   const data = state.player?.getVideoData?.() || {}
   if (!data.video_id || !data.title) return null
   return {
-    title: `${data.title} — बरसात Monsoon Radio`,
-    text: `Listening to “${data.title}” by ${data.author || 'Monsoon Radio'} on बरसात — Monsoon Radio 🌧️`,
+    title: `${data.title} | Barsaat Monsoon Radio`,
+    text: `Listening to “${data.title}” by ${data.author || 'Monsoon Radio'} on Barsaat Monsoon Radio 🌧️`,
     url: 'https://barsaat.in/',
   }
 }
@@ -937,6 +937,7 @@ const fgContext = fgCanvas ? fgCanvas.getContext('2d') : null
 let bgDrops = []
 let staticDroplets = []
 let slidingDroplets = []
+let playerSplashes = []
 let rainFrame = 0
 let width = 0
 let height = 0
@@ -981,6 +982,7 @@ function resizeRain() {
   bgDrops = []
   initStaticDroplets()
   slidingDroplets = []
+  playerSplashes = []
 }
 
 function initStaticDroplets() {
@@ -1019,7 +1021,62 @@ function makeSlidingDroplet() {
     vy: (0.35 + Math.random() * 0.6) * (params.slidingSpeed || 1),
     maxVy: (1.2 + Math.random() * 1.6) * (params.slidingSpeed || 1),
     tailLength: 12 + Math.random() * 25,
-    opacity: 0.45 + Math.random() * 0.3
+    opacity: 0.45 + Math.random() * 0.3,
+    splashedOnPlayer: false
+  }
+}
+
+// Player rain splash effect. Isolated here so it can be removed without changing rain physics.
+function makePlayerSplash(x, y, speed) {
+  const particleCount = 3 + Math.floor(Math.random() * 3)
+  playerSplashes.push({
+    x,
+    y,
+    age: 0,
+    life: 26 + Math.floor(Math.random() * 10),
+    radius: 5 + Math.min(5, speed * 1.8),
+    particles: Array.from({ length: particleCount }, (_, index) => ({
+      direction: particleCount === 1 ? 0 : index / (particleCount - 1) * 2 - 1,
+      height: 4 + Math.random() * 7,
+      distance: 3 + Math.random() * 7,
+      size: 0.7 + Math.random() * 0.8,
+    })),
+  })
+
+  if (playerSplashes.length > 18) playerSplashes.shift()
+}
+
+function renderPlayerSplashes(context, isDay) {
+  for (let index = playerSplashes.length - 1; index >= 0; index--) {
+    const splash = playerSplashes[index]
+    splash.age += 1
+    const progress = splash.age / splash.life
+
+    if (progress >= 1) {
+      playerSplashes.splice(index, 1)
+      continue
+    }
+
+    const alpha = Math.sin(Math.PI * progress) * (isDay ? 0.72 : 0.82)
+    const color = isDay ? `rgba(255,255,255,${alpha})` : `rgba(205,235,248,${alpha})`
+
+    context.save()
+    context.translate(splash.x, splash.y)
+    context.strokeStyle = color
+    context.lineWidth = 0.8
+    context.beginPath()
+    context.ellipse(0, 0, splash.radius * progress, splash.radius * 0.22 * progress, 0, Math.PI, Math.PI * 2)
+    context.stroke()
+
+    for (const particle of splash.particles) {
+      const particleX = particle.direction * particle.distance * progress
+      const particleY = -Math.sin(Math.PI * progress) * particle.height
+      context.beginPath()
+      context.arc(particleX, particleY, particle.size * (1 - progress * 0.45), 0, Math.PI * 2)
+      context.fillStyle = color
+      context.fill()
+    }
+    context.restore()
   }
 }
 
@@ -1097,6 +1154,10 @@ function renderRainSystem() {
         const hittingTopEdge = pRect && (d.x >= pRect.left && d.x <= pRect.right && Math.abs(d.y - pRect.top) < 8)
 
         if (hittingTopEdge) {
+          if (!d.splashedOnPlayer) {
+            makePlayerSplash(d.x, pRect.top + 1, d.vy)
+            d.splashedOnPlayer = true
+          }
           d.vy = Math.max(0.3, d.vy * 0.85)
         } else {
           d.vy = Math.min(d.maxVy, d.vy + 0.025)
@@ -1186,6 +1247,8 @@ function renderRainSystem() {
         }
       }
     }
+
+    renderPlayerSplashes(fgContext, isDay)
   }
 
   rainFrame = requestAnimationFrame(renderRainSystem)

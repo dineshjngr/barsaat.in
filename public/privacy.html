@@ -14,14 +14,20 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Privacy information for Monsoon Radio." />
+    <meta name="description" content="Learn how Barsaat Monsoon Radio stores listening preferences, handles optional analytics, and protects visitor privacy." />
     <link rel="canonical" href="https://barsaat.in/privacy.html" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="/info-theme.js"></script>
     <link rel="stylesheet" href="/info.css" />
-    <title>Privacy — Monsoon Radio</title>
+    <script defer src="/info-navigation.js"></script>
+    <title>Privacy | Barsaat Monsoon Radio</title>
   </head>
   <body>
     <main class="info-page">
+      <a class="info-page__player-return" href="/" data-return-to-player>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 9 6-9 6V6Z" fill="currentColor" /></svg>
+        <span>Back to player</span>
+      </a>
       <p class="info-page__eyebrow">Privacy</p>
       <h1>Your quiet stays yours.</h1>
       <p>Monsoon Radio stores your theme, shuffle and analytics choices in your browser. It does not maintain user accounts or operate its own tracking backend.</p>
@@ -30,7 +36,7 @@
       <h2>Music playback</h2>
       <p>The YouTube player is requested only after you press play. YouTube may then process playback information under its own privacy terms.</p>
       <button id="reset-consent" type="button">Reset analytics choice</button>
-      <nav class="info-page__nav"><a href="/">Listen</a><a href="/about.html">About</a></nav>
+      <nav class="info-page__nav"><a href="/about.html">About</a></nav>
     </main>
     <script>
       document.getElementById('reset-consent').addEventListener('click', function () {

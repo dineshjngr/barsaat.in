@@ -33,7 +33,7 @@ if ($html === '') {
     exit;
 }
 
-$title = $track['title'] . ' — बरसात Monsoon Radio';
+$title = $track['title'] . ' | Barsaat Monsoon Radio';
 $description = $track['artist'] . ' · listening in the rain';
 
 function replace_first(string $pattern, string $replacement, string $html): string
