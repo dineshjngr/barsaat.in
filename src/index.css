@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap');
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
 
 :root { --bg: #071319; --text: #f1f1e8; --muted: #aebbbb; --glass: rgba(17, 35, 39, .55); --glass-border: rgba(212, 232, 226, .19); --accent: #82d0bf; --warm-light: #da8065; --deep: #08171c; color-scheme: dark; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); font-synthesis: none; text-rendering: optimizeLegibility; transition: color 550ms ease, background-color 700ms ease; -webkit-font-smoothing: antialiased; }
 * { box-sizing: border-box; }

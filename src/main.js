@@ -1,3 +1,5 @@
+import supportQrUrl from '../source-assets/backgrounds/GooglePay_QR.jpg'
+
 const PLAYLIST_IDS = [
   'OLAK5uy_nrsol77KIGNjXoQrCTMw0tU1E2FjTeZ4I',
   'OLAK5uy_m-2Xq7-sAnzgR4iE6_jFcQRU6-1ODCbd4',
@@ -559,10 +561,17 @@ const shareButton = $('#share')
 const sharePopover = $('#share-popover')
 const shareCopy = $('#share-copy')
 const shareNative = $('#share-native')
+const supportTrigger = $('#support-trigger')
+const supportDialog = $('#support-dialog')
+const supportClose = $('#support-close')
+const siteContextDetails = $('.site-context__details')
 const mobileShare = matchMedia('(max-width: 700px)')
 const desktopShortcuts = matchMedia('(min-width: 701px) and (pointer: fine)')
 let thunderTimer = 0
 let shareCopyResetTimer = 0
+let supportPreviousFocus = null
+
+$('#support-qr').src = supportQrUrl
 
 function updateMixer() {
   const summaryEl = $('#rain-mixer-summary')
@@ -692,6 +701,19 @@ function closeSharePopover(restoreFocus = false) {
   if (restoreFocus) shareButton.focus()
 }
 
+function setSupportDialog(open, restoreFocus = false) {
+  supportDialog.hidden = !open
+  supportTrigger.setAttribute('aria-expanded', String(open))
+  document.body.classList.toggle('is-support-open', open)
+  if (open) {
+    supportPreviousFocus = document.activeElement
+    supportClose.focus()
+  } else if (restoreFocus) {
+    const focusTarget = supportPreviousFocus instanceof HTMLElement ? supportPreviousFocus : supportTrigger
+    focusTarget.focus()
+  }
+}
+
 function populateSharePopover(moment) {
   const message = encodeURIComponent(`${moment.text}\n${moment.url}`)
   $('#share-whatsapp').href = `https://wa.me/?text=${message}`
@@ -745,6 +767,11 @@ shareButton.addEventListener('click', async () => {
 })
 
 $('#share-close').addEventListener('click', () => closeSharePopover(true))
+supportTrigger.addEventListener('click', () => setSupportDialog(true))
+supportClose.addEventListener('click', () => setSupportDialog(false, true))
+supportDialog.addEventListener('pointerdown', (event) => {
+  if (event.target === supportDialog) setSupportDialog(false, true)
+})
 shareNative.addEventListener('click', async () => {
   const moment = currentShareMoment()
   if (moment) await openNativeShare(moment)
@@ -787,6 +814,7 @@ rainMixerTrigger.addEventListener('click', () => {
 })
 
 document.addEventListener('pointerdown', (event) => {
+  if (siteContextDetails.open && !siteContextDetails.contains(event.target)) siteContextDetails.open = false
   if (!rainMixerPanel.hidden && !rainMixer.contains(event.target)) {
     rainMixerPanel.hidden = true
     rainMixerTrigger.setAttribute('aria-expanded', 'false')
@@ -796,6 +824,15 @@ document.addEventListener('pointerdown', (event) => {
 })
 
 document.addEventListener('keydown', (event) => {
+  if (!supportDialog.hidden && event.key === 'Tab') {
+    event.preventDefault()
+    supportClose.focus()
+  }
+  if (event.key === 'Escape' && !supportDialog.hidden) setSupportDialog(false, true)
+  if (event.key === 'Escape' && siteContextDetails.open) {
+    siteContextDetails.open = false
+    siteContextDetails.querySelector('summary')?.focus()
+  }
   if (event.key === 'Escape' && !keyboardHelpPanel.hidden) setKeyboardHelp(false, true)
   if (event.key === 'Escape' && !todaysRainCard.hidden) {
     todaysRainCard.hidden = true

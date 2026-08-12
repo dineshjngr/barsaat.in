@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
 :root { color-scheme: dark; font-family: 'DM Sans', sans-serif; background: #071319; color: #f1f1e8; }
 * { box-sizing: border-box; }
 body { min-height: 100svh; margin: 0; display: grid; place-items: center; padding: 28px; background: linear-gradient(rgba(4, 15, 19, .62), rgba(4, 15, 19, .82)), url('/backgrounds/desktop-banner-dark.jpg') center/cover fixed; }
