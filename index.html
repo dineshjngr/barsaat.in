@@ -107,7 +107,7 @@
     <div id="root">
       <main class="radio-app">
         <div class="yt-host" aria-hidden="true"><div id="yt-player"></div></div>
-        <div class="scene scene--rain" aria-hidden="true"><div class="scene__photo scene__photo--night"></div><div class="scene__photo scene__photo--day"></div><div class="lightning-flash" id="lightning-flash"></div><canvas class="rain-canvas" id="rain-canvas"></canvas></div>
+        <div class="scene scene--rain" aria-hidden="true"><div class="scene__photo scene__photo--night"></div><div class="scene__photo scene__photo--day"></div><div class="scene__photo scene__photo--atmosphere" id="atmosphere-scene"></div><div class="lightning-flash" id="lightning-flash"></div><canvas class="rain-canvas" id="rain-canvas"></canvas></div>
         <canvas class="fg-rain-canvas" id="fg-rain-canvas" aria-hidden="true"></canvas>
         <div class="radio-content">
           <h1 class="sr-only">Barsaat Monsoon Radio — Rainy Songs and Ambient Noise Mixer</h1>
@@ -116,6 +116,7 @@
             <div class="presence" aria-live="polite" aria-label="Checking live listeners"><span class="presence__indicator"><span class="presence__dot"></span></span><span class="presence__count" id="presence-count">…</span><span class="presence__label" id="presence-label">listeners in the rain</span></div>
             <div class="topbar__actions">
               <label class="theme-switch"><input class="theme-switch__input" id="theme-switch" type="checkbox" role="switch" aria-label="Switch to day mode" aria-keyshortcuts="D" /><span class="theme-switch__icon" aria-hidden="true"><span class="theme-switch__icon-part theme-switch__icon-part--1"></span><span class="theme-switch__icon-part theme-switch__icon-part--2"></span><span class="theme-switch__icon-part theme-switch__icon-part--3"></span><span class="theme-switch__icon-part theme-switch__icon-part--4"></span><span class="theme-switch__icon-part theme-switch__icon-part--5"></span><span class="theme-switch__icon-part theme-switch__icon-part--6"></span><span class="theme-switch__icon-part theme-switch__icon-part--7"></span><span class="theme-switch__icon-part theme-switch__icon-part--8"></span><span class="theme-switch__icon-part theme-switch__icon-part--9"></span><span class="theme-switch__icon-part theme-switch__icon-part--10"></span><span class="theme-switch__icon-part theme-switch__icon-part--11"></span></span><span class="theme-switch__sr">Theme</span></label>
+              <button class="scene-trigger" id="scene-trigger" type="button" aria-label="Choose a visual scene" aria-haspopup="dialog" aria-controls="scene-dialog" aria-expanded="false"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v13H4v-13Zm2 2v7.3l3.6-3.6 2.7 2.7 1.8-1.8 3.9 3.9V7.5H6Zm2.4 2.1a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Z" fill="currentColor" /></svg><span class="scene-trigger__label">Scenes</span></button>
               <button class="support-trigger" id="support-trigger" type="button" aria-label="Support Barsaat" aria-haspopup="dialog" aria-controls="support-dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.6 10.6 19.3C5.4 14.6 2 11.5 2 7.7 2 4.6 4.4 2.2 7.5 2.2c1.7 0 3.4.8 4.5 2.1 1.1-1.3 2.8-2.1 4.5-2.1 3.1 0 5.5 2.4 5.5 5.5 0 3.8-3.4 6.9-8.6 11.6L12 20.6Z" fill="currentColor" /></svg><span class="support-trigger__label">Support</span></button>
               <a class="topbar__service" aria-label="Open on YouTube Music" href="https://music.youtube.com/playlist?list=OLAK5uy_nrsol77KIGNjXoQrCTMw0tU1E2FjTeZ4I" target="_blank" rel="noopener noreferrer"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 16.1A6.1 6.1 0 1 1 12 5.9a6.1 6.1 0 0 1 0 12.2Zm0-11.4a5.3 5.3 0 1 0 0 10.6 5.3 5.3 0 0 0 0-10.6Zm-2 8.3V9l5.2 3-5.2 3Z" fill="currentColor" /></svg><span class="topbar__service-label">YT Music</span><span class="topbar__service-arrow"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6h-2V7.4l-8.3 8.3-1.4-1.4L16.6 6H14V4Z" fill="currentColor" /></svg></span></a>
               <div class="keyboard-help">
@@ -136,6 +137,18 @@
               </div>
             </div>
           </header>
+          <div class="scene-dialog" id="scene-dialog" role="dialog" aria-modal="true" aria-labelledby="scene-dialog-title" hidden>
+            <section class="scene-dialog__card">
+              <header><div><p>VISUAL ATMOSPHERES</p><h2 id="scene-dialog-title">Choose your window</h2></div><button id="scene-close" type="button" aria-label="Close scene picker">×</button></header>
+              <div class="scene-grid">
+                <button class="scene-option is-selected" type="button" data-scene="monsoon-city"><img src="/backgrounds/desktop-banner-dark.jpg" data-night="/backgrounds/desktop-banner-dark.jpg" data-day="/backgrounds/desktop-banner-light.jpg" alt="Rainy monsoon city" loading="lazy" /><span><strong>Monsoon City</strong><small>Free</small></span></button>
+                <button class="scene-option" type="button" data-scene="cozy-window"><img src="/backgrounds/atmospheres/cozy-window.jpg" data-night="/backgrounds/atmospheres/cozy-window.jpg" data-day="/backgrounds/atmospheres/cozy-window-day.jpg" alt="Cozy room beside a rain-covered city window" loading="lazy" /><span><strong>Cozy Window</strong><small>Free</small></span></button>
+                <button class="scene-option" type="button" data-scene="night-train"><img src="/backgrounds/atmospheres/night-train.jpg" data-night="/backgrounds/atmospheres/night-train.jpg" data-day="/backgrounds/atmospheres/night-train-day.jpg" alt="Train window in monsoon rain" loading="lazy" /><span><strong>Night Train</strong><small>Free</small></span></button>
+                <button class="scene-option" type="button" data-scene="monsoon-cafe"><img src="/backgrounds/atmospheres/monsoon-cafe.jpg" data-night="/backgrounds/atmospheres/monsoon-cafe.jpg" data-day="/backgrounds/atmospheres/monsoon-cafe-day.jpg" alt="Warm cafe overlooking a rainy street" loading="lazy" /><span><strong>Monsoon Café</strong><small>Free</small></span></button>
+              </div>
+              <p class="scene-dialog__note" id="scene-preview-status" aria-live="polite">Every atmosphere is free. Each scene includes matching day and night artwork.</p>
+            </section>
+          </div>
           <div class="support-dialog" id="support-dialog" role="dialog" aria-modal="true" aria-labelledby="support-title" aria-describedby="support-description" hidden>
             <section class="support-dialog__card">
               <button class="support-dialog__close" id="support-close" type="button" aria-label="Close support dialog">×</button>
@@ -195,6 +208,15 @@
                   <span class="toggle-pill__switch"><span class="toggle-pill__thumb"></span></span>
                 </button>
               </div>
+              <section class="soundscape-picker" aria-labelledby="soundscape-title">
+                <header><strong id="soundscape-title">SOUNDSCAPES</strong><span>FREE</span></header>
+                <div class="soundscape-picker__grid">
+                  <button class="soundscape-option is-selected" type="button" data-soundscape="light-rain"><span aria-hidden="true">☂</span><strong>Light Rain</strong><small>Free</small></button>
+                  <button class="soundscape-option" type="button" data-soundscape="heavy-downpour"><span aria-hidden="true">☁</span><strong>Downpour</strong><small>Free</small></button>
+                  <button class="soundscape-option" type="button" data-soundscape="wind-chimes" disabled><span aria-hidden="true">✦</span><strong>Wind Chimes</strong><small>Soon</small></button>
+                  <button class="soundscape-option" type="button" data-soundscape="monsoon-cafe" disabled><span aria-hidden="true">♨</span><strong>Café Chatter</strong><small>Soon</small></button>
+                </div>
+              </section>
               <label class="rain-mixer__volume"><span>Music <output id="music-volume-output">65%</output></span><input id="music-volume" type="range" min="0" max="100" value="65" aria-label="Music volume" /></label>
               <label class="rain-mixer__volume"><span>Rain <output id="rain-volume-output">20%</output></span><input id="rain-volume" type="range" min="0" max="100" value="20" aria-label="Rain ambience volume" /></label>
               <p class="rain-mixer__note" id="rain-mixer-note" aria-live="polite">Turn ambience on or adjust Rain volume to set intensity.</p>
@@ -210,7 +232,26 @@
                 <p>Switch between day and night scenes, tune the music and rain levels, or share the exact song and moment you are hearing. Playback begins only when you press play.</p>
               </div>
             </details>
-            <nav aria-label="Site information"><a href="/about.html" target="barsaat-info">About</a><a href="/privacy.html" target="barsaat-info">Privacy</a></nav>
+            <nav aria-label="Site information">
+              <a href="/about.html" data-site-info="about" aria-controls="site-info-panel" aria-expanded="false">About</a>
+              <a href="/privacy.html" data-site-info="privacy" aria-controls="site-info-panel" aria-expanded="false">Privacy</a>
+            </nav>
+            <section class="site-context__panel site-context__info-panel" id="site-info-panel" role="dialog" aria-live="polite" hidden>
+              <div data-site-info-content="about" hidden>
+                <p class="site-context__eyebrow">ABOUT BARSAAT</p>
+                <h2>Music beside a rain-lit window.</h2>
+                <p>Barsaat is a small cinematic listening room inspired by monsoon rain, Indian cities and old songs drifting through an open window.</p>
+                <p>Choose a day or night atmosphere, shuffle the radio and mix the music with rain. Playback starts only when you press play.</p>
+              </div>
+              <div data-site-info-content="privacy" hidden>
+                <p class="site-context__eyebrow">PRIVACY</p>
+                <h2>Your quiet stays yours.</h2>
+                <p>Your theme, scene, shuffle, volume and analytics choices stay in this browser. No account is required.</p>
+                <h3>Optional analytics</h3>
+                <p>Google Analytics runs only with your permission. YouTube is requested only after you press play.</p>
+                <button id="site-reset-consent" type="button">Reset analytics choice</button>
+              </div>
+            </section>
           </aside>
         </div>
       </main>

@@ -21,6 +21,11 @@ const FALLBACK_ART = '/covers/monsoon-fallback.svg'
 const RAIN_AUDIO = '/audio/liecio-light-rain-109591.mp3'
 const THUNDER_AUDIO = '/audio/thunder-sound.mp3'
 const THUNDER_FALLBACK = '/audio/distant-thunder.wav'
+const ATMOSPHERE_SCENES = {
+  'cozy-window': { night: '/backgrounds/atmospheres/cozy-window.jpg', day: '/backgrounds/atmospheres/cozy-window-day.jpg' },
+  'night-train': { night: '/backgrounds/atmospheres/night-train.jpg', day: '/backgrounds/atmospheres/night-train-day.jpg' },
+  'monsoon-cafe': { night: '/backgrounds/atmospheres/monsoon-cafe.jpg', day: '/backgrounds/atmospheres/monsoon-cafe-day.jpg' },
+}
 const todaysRainLines = [
   'Some nights sound better in the rain.',
   'The city softens when the windows begin to sing.',
@@ -71,6 +76,7 @@ const state = {
   sharedTime: sharedMoment?.seconds || 0,
   sharedTrackLoaded: false,
   sharedSeekApplied: false,
+  activeScene: 'monsoon-city',
 }
 
 const $ = (selector) => document.querySelector(selector)
@@ -246,6 +252,8 @@ themeSwitch.addEventListener('change', async () => {
   themeSwitch.disabled = true
   await loadScene(theme)
   document.documentElement.dataset.theme = theme
+  updateAtmosphereSceneSource()
+  updateSceneThumbnails()
   updateThemeChrome(theme)
   themeSwitch.setAttribute('aria-label', theme === 'night' ? 'Switch to day mode' : 'Switch to night mode')
   storage.set('monsoon-theme', theme)
@@ -259,6 +267,56 @@ portraitScene.addEventListener('change', async () => {
   await loadScene(theme)
   loadScene(theme === 'day' ? 'night' : 'day')
 })
+
+const atmosphereScene = $('#atmosphere-scene')
+
+function renderSceneSelection(sceneId) {
+  document.querySelectorAll('.scene-option').forEach((option) => {
+    option.classList.toggle('is-selected', option.dataset.scene === sceneId)
+  })
+}
+
+function updateAtmosphereSceneSource() {
+  const sources = ATMOSPHERE_SCENES[state.activeScene]
+  if (!sources) return
+  const theme = document.documentElement.dataset.theme === 'day' ? 'day' : 'night'
+  atmosphereScene.style.backgroundImage = `url('${sources[theme]}')`
+  atmosphereScene.dataset.theme = theme
+}
+
+function updateSceneThumbnails() {
+  const theme = document.documentElement.dataset.theme === 'day' ? 'day' : 'night'
+  document.querySelectorAll('.scene-option img[data-day][data-night]').forEach((image) => {
+    image.src = image.dataset[theme]
+  })
+}
+
+function applyVisualScene(sceneId, persist = false) {
+  const sources = ATMOSPHERE_SCENES[sceneId]
+  if (!sources) {
+    atmosphereScene.style.backgroundImage = ''
+    atmosphereScene.dataset.scene = ''
+    $('.scene').classList.remove('has-atmosphere-scene')
+    state.activeScene = 'monsoon-city'
+  } else {
+    atmosphereScene.dataset.scene = sceneId
+    $('.scene').classList.add('has-atmosphere-scene')
+    state.activeScene = sceneId
+    updateAtmosphereSceneSource()
+    const currentTheme = document.documentElement.dataset.theme === 'day' ? 'day' : 'night'
+    const alternate = new Image()
+    alternate.src = sources[currentTheme === 'day' ? 'night' : 'day']
+  }
+  renderSceneSelection(state.activeScene)
+  if (persist) storage.set('barsaat-visual-scene', state.activeScene)
+}
+
+function restoreSavedScene() {
+  const saved = storage.get('barsaat-visual-scene', 'monsoon-city')
+  applyVisualScene(ATMOSPHERE_SCENES[saved] ? saved : 'monsoon-city')
+}
+updateSceneThumbnails()
+restoreSavedScene()
 
 function formatTime(value) {
   if (!Number.isFinite(value) || value < 0) return '0:00'
@@ -564,14 +622,50 @@ const shareNative = $('#share-native')
 const supportTrigger = $('#support-trigger')
 const supportDialog = $('#support-dialog')
 const supportClose = $('#support-close')
+const siteContext = $('.site-context')
 const siteContextDetails = $('.site-context__details')
+const siteInfoPanel = $('#site-info-panel')
+const siteInfoButtons = [...document.querySelectorAll('[data-site-info]')]
+const sceneTrigger = $('#scene-trigger')
+const sceneDialog = $('#scene-dialog')
+const sceneClose = $('#scene-close')
 const mobileShare = matchMedia('(max-width: 700px)')
 const desktopShortcuts = matchMedia('(min-width: 701px) and (pointer: fine)')
 let thunderTimer = 0
 let shareCopyResetTimer = 0
 let supportPreviousFocus = null
+let scenePreviousFocus = null
 
 $('#support-qr').src = supportQrUrl
+
+function setSiteInfoPanel(name = '') {
+  const open = name !== ''
+  siteInfoPanel.hidden = !open
+  siteInfoButtons.forEach((button) => button.setAttribute('aria-expanded', String(open && button.dataset.siteInfo === name)))
+  document.querySelectorAll('[data-site-info-content]').forEach((content) => {
+    content.hidden = !open || content.dataset.siteInfoContent !== name
+  })
+}
+
+siteInfoButtons.forEach((button) => {
+  button.addEventListener('click', (event) => {
+    event.preventDefault()
+    const name = button.dataset.siteInfo || ''
+    const alreadyOpen = !siteInfoPanel.hidden && button.getAttribute('aria-expanded') === 'true'
+    siteContextDetails.open = false
+    setSiteInfoPanel(alreadyOpen ? '' : name)
+  })
+})
+
+siteContextDetails.addEventListener('toggle', () => {
+  if (siteContextDetails.open) setSiteInfoPanel('')
+})
+
+$('#site-reset-consent').addEventListener('click', (event) => {
+  try { localStorage.removeItem('monsoon-analytics-consent') } catch { /* Consent remains unchanged if storage is unavailable. */ }
+  window.gtag?.('consent', 'update', { analytics_storage: 'denied' })
+  event.currentTarget.textContent = 'Choice reset'
+})
 
 function updateMixer() {
   const summaryEl = $('#rain-mixer-summary')
@@ -714,6 +808,18 @@ function setSupportDialog(open, restoreFocus = false) {
   }
 }
 
+function setSceneDialog(open, restoreFocus = false) {
+  sceneDialog.hidden = !open
+  sceneTrigger.setAttribute('aria-expanded', String(open))
+  if (open) {
+    scenePreviousFocus = document.activeElement
+    sceneClose.focus()
+  } else if (restoreFocus) {
+    const focusTarget = scenePreviousFocus instanceof HTMLElement ? scenePreviousFocus : sceneTrigger
+    focusTarget.focus()
+  }
+}
+
 function populateSharePopover(moment) {
   const message = encodeURIComponent(`${moment.text}\n${moment.url}`)
   $('#share-whatsapp').href = `https://wa.me/?text=${message}`
@@ -768,9 +874,43 @@ shareButton.addEventListener('click', async () => {
 
 $('#share-close').addEventListener('click', () => closeSharePopover(true))
 supportTrigger.addEventListener('click', () => setSupportDialog(true))
-supportClose.addEventListener('click', () => setSupportDialog(false, true))
+supportClose.addEventListener('pointerdown', (event) => {
+  event.preventDefault()
+  event.stopPropagation()
+  setSupportDialog(false, true)
+})
+supportClose.addEventListener('click', (event) => {
+  event.stopPropagation()
+  if (!supportDialog.hidden) setSupportDialog(false, true)
+})
 supportDialog.addEventListener('pointerdown', (event) => {
   if (event.target === supportDialog) setSupportDialog(false, true)
+})
+sceneTrigger.addEventListener('click', () => setSceneDialog(true))
+sceneClose.addEventListener('click', () => setSceneDialog(false, true))
+sceneDialog.addEventListener('pointerdown', (event) => {
+  if (event.target === sceneDialog) setSceneDialog(false, true)
+})
+document.querySelectorAll('.scene-option').forEach((option) => {
+  option.addEventListener('click', () => {
+    const sceneId = option.dataset.scene || 'monsoon-city'
+    applyVisualScene(sceneId, true)
+    $('#scene-preview-status').textContent = 'Atmosphere selected. Every scene is free.'
+    setSceneDialog(false, true)
+  })
+})
+
+document.querySelectorAll('.soundscape-option:not(:disabled)').forEach((option) => {
+  option.addEventListener('click', () => {
+    document.querySelectorAll('.soundscape-option').forEach((item) => item.classList.toggle('is-selected', item === option))
+    const isDownpour = option.dataset.soundscape === 'heavy-downpour'
+    state.rainEnabled = true
+    state.rainVolume = isDownpour ? 82 : 20
+    storage.set('monsoon-rain-enabled', 'true')
+    storage.set('monsoon-rain-volume', String(state.rainVolume))
+    updateMixer()
+    playRainAmbience().then(() => setMixerNote(isDownpour ? 'Heavy downpour is playing.' : 'Light rain is playing.'))
+  })
 })
 shareNative.addEventListener('click', async () => {
   const moment = currentShareMoment()
@@ -815,6 +955,7 @@ rainMixerTrigger.addEventListener('click', () => {
 
 document.addEventListener('pointerdown', (event) => {
   if (siteContextDetails.open && !siteContextDetails.contains(event.target)) siteContextDetails.open = false
+  if (!siteInfoPanel.hidden && !siteContext.contains(event.target)) setSiteInfoPanel('')
   if (!rainMixerPanel.hidden && !rainMixer.contains(event.target)) {
     rainMixerPanel.hidden = true
     rainMixerTrigger.setAttribute('aria-expanded', 'false')
@@ -829,9 +970,15 @@ document.addEventListener('keydown', (event) => {
     supportClose.focus()
   }
   if (event.key === 'Escape' && !supportDialog.hidden) setSupportDialog(false, true)
+  if (event.key === 'Escape' && !sceneDialog.hidden) setSceneDialog(false, true)
   if (event.key === 'Escape' && siteContextDetails.open) {
     siteContextDetails.open = false
     siteContextDetails.querySelector('summary')?.focus()
+  }
+  if (event.key === 'Escape' && !siteInfoPanel.hidden) {
+    const activeButton = siteInfoButtons.find((button) => button.getAttribute('aria-expanded') === 'true')
+    setSiteInfoPanel('')
+    activeButton?.focus()
   }
   if (event.key === 'Escape' && !keyboardHelpPanel.hidden) setKeyboardHelp(false, true)
   if (event.key === 'Escape' && !todaysRainCard.hidden) {
@@ -981,7 +1128,7 @@ let height = 0
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function getRainParams() {
-  const vol = state.rainVolume || 20
+  const vol = state.rainVolume
   if (vol <= 0) return { bgCount: 0, bgSpeed: 0, bgLen: 0, staticCount: 0, slidingCount: 0, slidingSpeed: 0 }
   if (vol <= 25) {
     return { bgCount: 50, bgSpeed: 0.7, bgLen: 0.65, staticCount: 40, slidingCount: 1, slidingSpeed: 0.5 }

@@ -22,6 +22,8 @@ Barsaat is an atmospheric web-based music experience combining YouTube-powered p
 - Play, pause, previous, next, seeking, and cross-playlist song shuffle
 - Current track title, artist, thumbnail, and rotating album disc
 - Responsive DAY and NIGHT scenes with cinematic crossfades
+- Free atmosphere catalogue with three original scenes and matching day/night artwork
+- Free light-rain and heavy-downpour soundscape controls
 - Canvas rain with Drizzle, Rain, Heavy Rain, and Cloudburst intensities
 - Independent music and rain ambience volume controls
 - Optional distant thunder
@@ -80,6 +82,7 @@ Track-specific metadata routes in `public/listen/` require PHP 8+, GD, Apache-co
 ## Public Assets
 
 - Backgrounds: `public/backgrounds/`
+- Atmosphere scene posters: `public/backgrounds/atmospheres/`
 - Original background sources: `source-assets/backgrounds/`
 - Cover fallback: `public/covers/monsoon-fallback.svg`
 - Homepage social image: `public/social-card.jpg`

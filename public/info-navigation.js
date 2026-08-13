@@ -17,4 +17,5 @@ returnToPlayer?.addEventListener('click', (event) => {
   event.preventDefault()
   window.opener.focus()
   window.close()
+  setTimeout(() => window.location.assign('/'), 120)
 })
